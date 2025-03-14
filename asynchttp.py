@@ -11,6 +11,9 @@ async def fetch(url: str):
     :return: Url内容
     """
     async with aiohttp.ClientSession() as session:
+        print(f"5秒钟后获取[{url}]内容")
+        await asyncio.sleep(5)
+        print(f"开始获取[{url}]内容")
         async with session.get(url) as response:
             return await response.text()
 
