@@ -1,7 +1,6 @@
 # 面向对象概念(继承、多态、封装)演示
 from abc import abstractmethod, ABC
 
-
 class AnimalBase(ABC):
     """
     ABC 代表 Abstract Base Class（抽象基类），它是 abc 模块中的一个类，专门用于定义抽象类。
@@ -43,7 +42,6 @@ class AnimalBase(ABC):
         说话(抽象方法),子类必须实现
         """
 
-
 class DogAnimal(AnimalBase):
     """
     狗
@@ -53,8 +51,14 @@ class DogAnimal(AnimalBase):
         """
         狗说话
         """
+        self.__initial_speak()
         print(f"{self.name} says woof")
 
+    def __initial_speak(self):
+        """
+        私有方法(只能在DogAnimal内部调用),初始化speak
+        """
+        print(f"initial {self.name} speak")
 
 class CatAnimal(AnimalBase):
     """
@@ -92,7 +96,6 @@ class CatAnimal(AnimalBase):
         """
         print(f"{self.name} says Meow，bread is {self.bread}")
 
-
 def animal_sound(animal: AnimalBase):
     """
     使用多态让不同动物实现说话
@@ -100,7 +103,6 @@ def animal_sound(animal: AnimalBase):
     """
     animal.speak()
     print(f"{animal.name}的颜色是{animal.color}")
-
 
 # 狗说话
 dog = DogAnimal("旺财")

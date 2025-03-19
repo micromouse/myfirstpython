@@ -1,6 +1,5 @@
 import json
 
-
 class PersonInfo:
     """
     个人信息类，用于存储和管理个人基本信息。
