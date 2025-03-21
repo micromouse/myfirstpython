@@ -35,18 +35,17 @@ class RouterRegistrar:
             if not module_info.name.endswith('__init__'):
                 module = importlib.import_module(module_info.name)
                 self.__register_module_routers(module)
-
-    """
-        使用 pkgutil.iter_modules() 替代 resources.files().iterdir() 确实是一个更好的选择，因为：        
-        它直接处理Python模块而不是文件系统路径，更符合Python的模块导入系统
-        它在普通Python环境和PyInstaller打包环境中都能正常工作
-        不需要额外的环境检测逻辑，代码更简洁    
-        for file in resources.files(package).iterdir():
-            if file.suffix == ".py" and file.name != "__init__.py":
-                # 使用模块名加载模块
-                module_name = f"{self.__package}.{file.stem}"
-                module = importlib.import_module(module_name)
-    """
+                """
+                使用 pkgutil.iter_modules() 替代 resources.files().iterdir() 确实是一个更好的选择，因为：        
+                它直接处理Python模块而不是文件系统路径，更符合Python的模块导入系统
+                它在普通Python环境和PyInstaller打包环境中都能正常工作
+                不需要额外的环境检测逻辑，代码更简洁    
+                for file in resources.files(package).iterdir():
+                    if file.suffix == ".py" and file.name != "__init__.py":
+                        # 使用模块名加载模块
+                        module_name = f"{self.__package}.{file.stem}"
+                        module = importlib.import_module(module_name)
+                """
 
     def __register_module_routers(self, module):
         """
