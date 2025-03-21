@@ -1,7 +1,7 @@
 # FastAPI 简单有应用
-import os
-
+import uvicorn
 from fastapi import FastAPI
+
 from FastApi.FastApiResultMiddleware import FastApiResultMiddleware
 from FastApi.RouterRegistrar import RouterRegistrar
 
@@ -12,5 +12,7 @@ app = FastAPI()
 app.add_middleware(FastApiResultMiddleware)
 
 # 动态注册路由
-apiDirectory = os.path.join(os.path.dirname(__file__), "FastApi")
-RouterRegistrar(app, apiDirectory).registerRouters()
+RouterRegistrar(app, "FastApi").registerRouters()
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
