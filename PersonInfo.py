@@ -4,7 +4,7 @@ class PersonInfo:
     """
     个人信息类，用于存储和管理个人基本信息。
 
-    :cvar species：表示物种类型
+    :cvar species：表示物种类型(类变量)
     """
     species: str = "人类"
 
