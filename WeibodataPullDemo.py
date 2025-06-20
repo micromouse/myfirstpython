@@ -1,39 +1,66 @@
-"""
-微博数据抓取演示
-"""
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+import requests
+import json
 import time
+import sys
 
-# 打开微博
-service = Service(executable_path="c:/windows/chromedriver.exe")
-options = webdriver.ChromeOptions()
-options.add_argument("--start-maximized")
-driver = webdriver.Chrome(service=service, options=options)
-driver.get("https://weibo.com")
+def get_cookies_dict(cookies_list):
+    """将 selenium cookies 转换为 requests 可用的 dict 格式"""
+    return {cookie['name']: cookie['value'] for cookie in cookies_list}
 
-# 等你手动登录
-input("登录后按 Enter 继续...")
+def selenium_login_and_get_cookies():
+    """使用 Selenium 登录微博并提取 cookies"""
+    chrome_options = Options()
+    chrome_options.add_argument("--start-maximized")
+    driver = webdriver.Chrome(service=Service("c:/windows/chromedriver.exe"), options=chrome_options)
 
-# 访问具体微博页面，延时5秒
-print("正在获取微博帖子：https://weibo.com/1499104401/PxnC4laEm")
-driver.get("https://weibo.com/1499104401/PxnC4laEm")
-time.sleep(5)
+    driver.get("https://weibo.com/")
+    input("请登录微博后按回车继续...")  # 手动扫码/账号登录
+    time.sleep(5)
 
-# 滚动加载评论
-print("滚动浏览器加载评论")
-for _ in range(5):
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(2)
+    cookies = driver.get_cookies()
+    driver.quit()
+    return get_cookies_dict(cookies)
 
-# 提取评论内容
-print("获取评论内容")
-comments = driver.find_elements(By.XPATH, '//*[@id="app"]/div[2]/div[2]/div[2]/main/div[1]/div/div[2]/div[2]/div[3]/div/div[2]/div/div')
-print(f"\n共获取 {len(comments)} 条评论：")
-for i, c in enumerate(comments):
-    print(f"{i + 1}. {c.text}")
+def fetch_comments(mid, cookies):
+    """使用 requests 抓取指定微博的评论"""
+    url = f"https://weibo.com/ajax/statuses/buildComments?flow=0&is_reload=1&id={mid}&is_show_bulletin=2&is_mix=0&count=20"
 
-print("完成评论获取，按 Enter 退出")
-input()
-driver.quit()
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Referer": f"https://weibo.com/2806170583/{mid}",
+        "Accept": "application/json",
+    }
+
+    response = requests.get(url, headers=headers, cookies=cookies)
+    if response.status_code != 200:
+        print("请求失败，状态码：", response.status_code)
+        return
+
+    data = response.json()
+    print(json.dumps(data, indent=2, ensure_ascii=False))
+    comments = data.get("data", [])
+    print(f"共获取 {len(comments)} 条评论：")
+    if not comments:
+        print("当前页未返回任何评论，可能需要翻页")
+    else:
+        try:
+            for i, c in enumerate(comments):
+                print(c)
+                print(f"{i + 1}. {c['user']['screen_name']}: {c['text_raw']}")
+        except Exception as e:
+            print(f"获取评论时发生异常：{e}")
+
+# ---------- 主程序入口 ----------
+if __name__ == "__main__":
+    # 第一步：登录并获取 cookie
+    cookies = selenium_login_and_get_cookies()
+
+    # 第二步：抓取微博评论（mid 是微博 ID，不是链接中的 UID）
+    weibo_mid = "PxpqkDWRS"  # 替换成你想抓的微博 MID
+    fetch_comments(weibo_mid, cookies)
+
+    sys.exit(0)
