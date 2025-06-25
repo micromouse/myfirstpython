@@ -5,6 +5,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from datetime import datetime, time
+from typing import Any
 import requests
 import json
 import time
@@ -38,8 +39,8 @@ def fetch_comments(mid: str, max_id: int, total_counter: int, cookies: dict) -> 
     :return: (max_id,total_counter)
     """
     """使用 requests 抓取指定微博的评论"""
-    next_page = f"&max_id={max_id}" if max_id > 0 else ""
-    url = f"https://weibo.com/ajax/statuses/buildComments?flow=0&is_reload=1&id={mid}&is_show_bulletin=2&is_mix=0&count=20{next_page}"
+    current_page = f"&max_id={max_id}" if max_id > 0 else ""
+    url = f"https://weibo.com/ajax/statuses/buildComments?flow=0&is_reload=1&id={mid}&is_show_bulletin=2&is_mix=0&count=20{current_page}"
 
     headers = {
         "User-Agent": "Mozilla/5.0",
@@ -52,7 +53,7 @@ def fetch_comments(mid: str, max_id: int, total_counter: int, cookies: dict) -> 
         print("请求失败，状态码：", response.status_code)
         return 0, total_counter
 
-    data = response.json()
+    data: dict[str, Any] = response.json()
     comments = data.get("data", [])
     print(f"共获取 {len(comments)} 条评论：")
     if not comments:
