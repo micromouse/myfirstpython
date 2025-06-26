@@ -1,4 +1,5 @@
 # 文件演示
+import os.path
 from collections.abc import Iterable
 
 def create_file():
@@ -18,6 +19,20 @@ def append_file(filename: str, lines: Iterable[str]):
     """
     with open(filename, 'a') as file:
         file.writelines(lines)
+
+def remove_file(filename: str) -> bool:
+    """
+    删除文件
+    :param filename: 文件名
+    :return: 是否成功删除
+    """
+    # 文件存在，删除文件
+    if os.path.exists(filename):
+        os.remove(filename)
+        return True
+
+    # 文件不存在，删除失败
+    return False
 
 # 建立新文件
 filename = create_file()
