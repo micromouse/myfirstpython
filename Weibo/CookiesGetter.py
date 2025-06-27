@@ -30,6 +30,13 @@ class CookiesGetter:
             cookies = json.load(f)
             return cookies
 
+    def remove_cookies(self):
+        """
+        删除Cookies.json文件
+        :return: None
+        """
+        os.remove(self.__cookies_file)
+
     def __selenium_login_and_get_cookies(self) -> list[dict]:
         """
         使用selenium登录微博并获取cookies

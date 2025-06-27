@@ -1,3 +1,4 @@
+import os
 from typing import Any
 import requests
 
@@ -15,7 +16,7 @@ class CommentsFetcher:
         """
         self.user_id = user_id
         self.page_size = page_size
-        self.__weiboCookiesGetter = CookiesGetter()
+        self.__cookiesGetter = CookiesGetter()
 
     def fetch_all_comments(self, m_id: str) -> list[dict[str, Any]]:
         """
@@ -52,11 +53,12 @@ class CommentsFetcher:
             "Accept": "application/json",
         }
 
-        response = requests.get(url, headers=headers, cookies=self.__weiboCookiesGetter.load_cookies())
+        response = requests.get(url, headers=headers, cookies=self.__cookiesGetter.load_cookies())
         if response.status_code != 200:
             raise requests.HTTPError(f"Http请求异常,相应代码：{response.status_code}")
         response_data: dict[str, Any] = response.json()
         if response_data["ok"] == -100:
+            self.__cookiesGetter.remove_cookies()
             raise PermissionError(f"用户未登录异常")
 
         # 返回当前页(评论集合,下一页Id)
