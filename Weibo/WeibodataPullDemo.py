@@ -33,7 +33,7 @@ def selenium_login_and_get_cookies():
     # {key_expr: value_expr for item in iterable}
     # 遍历iterable，对每个 item，计算 key 和 value，然后组成一个新的字典。
     cookies = {c["name"]: c["value"] for c in driver.get_cookies()}
-    with open("cookies.json", "w", encoding="utf-8") as f:
+    with open("./cookies.json", "w", encoding="utf-8") as f:
         json.dump(cookies, f, ensure_ascii=False, indent=2)
         print("cookies已保存至cookies.json")
 
@@ -46,11 +46,11 @@ def load_cookies() -> dict | None:
     :return: cookies
     """
     # cookies.json文件不存在
-    if not os.path.exists("cookies.json"):
+    if not os.path.exists("./cookies.json"):
         return None
 
     # 从cookies.json文件中加载cookies
-    with open("cookies.json", "r", encoding="utf-8") as f:
+    with open("./cookies.json", "r", encoding="utf-8") as f:
         cookies = json.load(f)
         return cookies
 
@@ -118,8 +118,8 @@ if __name__ == "__main__":
         if max_id == 0:
             break
         elif max_id == -1:
-            if os.path.exists("cookies.json"):
-                os.remove("cookies.json")
+            if os.path.exists("./cookies.json"):
+                os.remove("./cookies.json")
             break
 
     print("按回车键退出")
