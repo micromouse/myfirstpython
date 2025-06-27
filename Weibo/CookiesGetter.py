@@ -17,15 +17,16 @@ class CookiesGetter:
         :param chromedriver: chromedriver.exe文件
         """
         self.chromedriver = chromedriver
+        self.__cookies_file = "./cookies.json"
 
     def load_cookies(self) -> dict[str, str]:
         # cookies.json文件不存在,使用selenium登录微博并获取cookies
-        if not os.path.exists("./cookies.json"):
+        if not os.path.exists(self.__cookies_file):
             cookies = self.__selenium_login_and_get_cookies()
             self.__save_cookies_to_file(cookies)
 
         # 从cookies.json文件中加载cookies
-        with open("./cookies.json", "r", encoding="utf-8") as f:
+        with open(self.__cookies_file, "r", encoding="utf-8") as f:
             cookies = json.load(f)
             return cookies
 
@@ -44,12 +45,11 @@ class CookiesGetter:
             time.sleep(5)
             return driver.get_cookies()
 
-    @staticmethod
-    def __save_cookies_to_file(cookies: list[dict]):
+    def __save_cookies_to_file(self, cookies: list[dict]):
         # Python字典推导式（dict comprehension）语法：
         # {key_expr: value_expr for item in iterable}
         # 遍历iterable，对每个 item，计算 key 和 value，然后组成一个新的字典。
         cookies = {c["name"]: c["value"] for c in cookies}
-        with open("./cookies.json", "w", encoding="utf-8") as f:
+        with open(self.__cookies_file, "w", encoding="utf-8") as f:
             json.dump(cookies, f, ensure_ascii=False, indent=2)
             print("cookies已保存至cookies.json")
