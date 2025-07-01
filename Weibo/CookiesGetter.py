@@ -35,6 +35,8 @@ class CookiesGetter:
         删除Cookies.json文件
         :return: None
         """
+        if not os.path.exists(self.__cookies_file):
+            raise FileNotFoundError(f"文件[{self.__cookies_file}]不存在")
         os.remove(self.__cookies_file)
 
     def __selenium_login_and_get_cookies(self) -> list[dict]:
