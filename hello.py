@@ -1,10 +1,9 @@
 from PersonInfo import PersonInfo
-
+from typing import List
 
 def add(a, b):
     print(f"即将输出a+b的值：\na={a}, b={b}")
     return a + b
-
 
 if __name__ == "__main__":
     print("hello", end=" ")
@@ -57,3 +56,16 @@ print(f"名称''是无效的:{PersonInfo.is_valid_name('')}")
 
 # 使用类名调用类方法
 print(f"20岁算成年吗：{PersonInfo.is_audit(20)}")
+
+def find_excel_files(root_dir):
+    """
+    获得根目录下的所有excel文件
+    :param root_dir: 根目录
+    :return: excel文件集合
+    """
+    excel_files = []
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        for filename in filenames:
+            if filename.endswith(('.xls', '.xlsx', '.xlsm')):
+                excel_files.append(os.path.join(dirpath, filename))
+    return excel_files
