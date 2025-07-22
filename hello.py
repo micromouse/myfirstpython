@@ -69,3 +69,23 @@ def find_excel_files(root_dir):
             if filename.endswith(('.xls', '.xlsx', '.xlsm')):
                 excel_files.append(os.path.join(dirpath, filename))
     return excel_files
+
+def remove_suffix(text: str, suffixs: List):
+    """
+    删除字符串末尾的子字符串集合
+    :param text: 源字符串
+    :param suffixs: 要删除的子字符串集合
+    :return: 删除所有字符串集合后的字符串
+    """
+    for suffix in suffixs:
+        if text.endswith(suffix):
+            """
+            text[start:stop]
+            start 是起始索引（包含）
+            stop 是结束索引（不包含）
+            如果不写 start，默认是从开头开始
+            如果 stop 是负数，表示“从字符串尾部往前数”            
+            """
+            text = text[:-len(suffix)].strip()
+
+    return text.strip()
