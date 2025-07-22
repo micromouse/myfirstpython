@@ -1,5 +1,5 @@
 from PersonInfo import PersonInfo
-from typing import List
+from typing import List, Any, Dict
 
 def add(a, b):
     print(f"即将输出a+b的值：\na={a}, b={b}")
@@ -70,7 +70,7 @@ def find_excel_files(root_dir):
                 excel_files.append(os.path.join(dirpath, filename))
     return excel_files
 
-def remove_suffix(text: str, suffixs: List):
+def remove_suffix(text: str, suffixs: List[str]):
     """
     删除字符串末尾的子字符串集合
     :param text: 源字符串
@@ -89,3 +89,28 @@ def remove_suffix(text: str, suffixs: List):
             text = text[:-len(suffix)].strip()
 
     return text.strip()
+
+def get_keys(headers: List[Dict[str, str]]) -> List[str]:
+    """
+    从列头词典列表中获得key集合
+    :param headers: 列头词典列表
+    :return: key集合
+    """
+    return [list(header.keys())[0] for header in headers]
+
+def get_column_headers(headers: List[Dict[str, str]]) -> List[str]:
+    """
+    从列头词典列表中获得列头值集合
+    :param headers: 列头词典列表
+    :return: 列头值集合
+    """
+    return [list(header.values())[0] for header in headers]
+
+def get_row_values(data: Dict[str, Any], keys: List) -> List[str]:
+    """
+    从一条词典数据中，根据key集合提取对应值（生成每一行）
+    :param data: 词典数据
+    :param keys: 要匹配的key集合
+    :return: 匹配key的值集合
+    """
+    return [data[key] for key in keys]
