@@ -114,3 +114,21 @@ def get_row_values(data: Dict[str, Any], keys: List) -> List[str]:
     :return: 匹配key的值集合
     """
     return [data[key] for key in keys]
+
+def find_list(items: List[Dict], name: str) -> Dict:
+    matches_item = [item for item in items if item["name"] == name]
+    if matches_item:
+        return matches_item[0]
+    else:
+        raise KeyError(f"没有找到当前购买方: {name}")
+
+def throw_inner_exception(item: Any) -> float:
+    """
+    获得开票金额
+    :param item: 开票项
+    :return: 开票金额
+    """
+    try:
+        return float(item.children()[6].get_text().replace(",", "").replace(" ", ""))
+    except Exception as e:
+        raise RuntimeError(f"获得当前项[{item.get_html()}]开票金额时发生错误") from e
