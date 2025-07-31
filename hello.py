@@ -106,14 +106,14 @@ def get_column_headers(headers: List[Dict[str, str]]) -> List[str]:
     """
     return [list(header.values())[0] for header in headers]
 
-def get_row_values(data: Dict[str, Any], keys: List) -> List[str]:
+def extract_values_by_keys(record: Dict[str, str], keys: List[str]) -> List[str]:
     """
-    从一条词典数据中，根据key集合提取对应值（生成每一行）
-    :param data: 词典数据
-    :param keys: 要匹配的key集合
-    :return: 匹配key的值集合
+    按照指定键列表的顺序，从字典中提取对应的值。
+    :param record: 包含多个键值对的字典
+    :param keys: 要提取的键列表，按此顺序提取值
+    :return: 提取出的值列表，对应于给定的键顺序
     """
-    return [data[key] for key in keys]
+    return [record[key] for key in keys]
 
 def find_list(items: List[Dict], name: str) -> Dict:
     matches_item = [item for item in items if item["name"] == name]
