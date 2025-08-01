@@ -1,13 +1,32 @@
 """
 使用xlwings控制excel演示
 """
+import os
 import xlwings
 from pathlib import Path
+from openpyxl import load_workbook
+from openpyxl.workbook import Workbook
 
 class ExcelDemo:
     """
     Excel演示类
     """
+
+    @staticmethod
+    def write_excel_by_openpyxl(file: str) -> None:
+        """
+        使用openpyxl库写excel
+        :param file: excel文件名
+        :return: None
+        """
+        print("Writing to:", os.path.abspath(file))
+        workbook: Workbook = load_workbook(file, read_only=False)
+        sheet = workbook.active
+        sheet.insert_rows(17)
+        sheet.cell(17, 2, "test")
+        sheet["D60"] = "hello"
+        workbook.save(file)
+        print("已保存到文件", file)
 
     @staticmethod
     def create_excel(file: str):
@@ -43,3 +62,6 @@ class ExcelDemo:
         # 目录不存在自动创建目录
         # parents=True 表示创建所有父目录，exist_ok=True 表示目录已存在也不会报错
         path.parent.mkdir(parents=True, exist_ok=True)
+
+# 测试
+ExcelDemo.write_excel_by_openpyxl("D:\销售CI&PL模板.xlsx")
