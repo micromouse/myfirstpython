@@ -19,9 +19,8 @@ class ExcelDemo:
         :param file: excel文件名
         :return: None
         """
-        print("Writing to:", os.path.abspath(file))
         workbook: Workbook = load_workbook(file, read_only=False)
-        sheet = workbook.active
+        sheet = workbook["货代 Invoice"]
         sheet.insert_rows(17)
         sheet.cell(17, 2, "test")
         sheet["D60"] = "hello"
