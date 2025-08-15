@@ -1,6 +1,4 @@
 # 函数演示
-from zoneinfo import reset_tzpath
-
 def sum_nums(first: int, *others: int):
     """
     不定长参数求和
@@ -8,12 +6,14 @@ def sum_nums(first: int, *others: int):
     :param others: 其余任意数字
     :return: 所有数字的总和
     """
-    sum = first
+    sum: int = first
     for num in others:
         sum += num
     return sum
 
+
 total = 0
+
 
 def calculate_total(num1: int, num2: int):
     """
@@ -24,6 +24,7 @@ def calculate_total(num1: int, num2: int):
     # 这里创建了一个新的局部变量 total，不影响外部的 total
     total = num1 + num2
     print(f"calculate_total方法内的total={total}")
+
 
 # 多个数字求和
 print(f"1={sum_nums(1)}")
