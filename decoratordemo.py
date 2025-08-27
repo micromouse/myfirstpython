@@ -30,6 +30,7 @@ def deprecated(message: str) -> Callable[..., Any]:
                 category=DeprecationWarning,
                 stacklevel=2
             )
+
             return func(*args, **kwargs)
 
         return wrapper
@@ -45,4 +46,13 @@ def new_function(x: int, y: int) -> int:
 
 result = old_function(2, 3)
 print(f"Result by old_function: {result}")
+
+"""
+@deprecated("Use `new_function` instread")的作用和下面调用等价
+这里的new_function的值是decorator函数，decorator的返回值是wrapper函数
+new_function(2, 3)最终执行的是wrapper函数：
+    1. 显示警告
+    2. 调用原始的new_function获得结果
+"""
+new_function = deprecated("拦截`new_function`")(new_function)
 print(f"Result by new_function: {new_function(2, 3)}")
