@@ -20,10 +20,22 @@ class ExcelDemo:
         :return: None
         """
         workbook: Workbook = load_workbook(file, read_only=False)
-        sheet = workbook["货代 Invoice"]
-        sheet.insert_rows(17)
+        sheet = workbook["Sheet1"]
+
+        # 添加新行
+        sheet.insert_rows(17, 1)
+
+        # 设置单元格格式
         sheet.cell(17, 2, "test")
         sheet["D60"] = "hello"
+
+        # 合并单元格，设置合并单元格值只能是起始单元格
+        sheet.merge_cells(range_string="A1:E1")
+        sheet.merge_cells(start_row=2, start_column=1, end_row=2, end_column=5)
+        sheet["A1"] = "cc"
+        sheet["A2"] = "cc"
+
+        # 保存
         workbook.save(file)
         print("已保存到文件", file)
 
@@ -63,4 +75,4 @@ class ExcelDemo:
         path.parent.mkdir(parents=True, exist_ok=True)
 
 # 测试
-ExcelDemo.write_excel_by_openpyxl("D:\销售CI&PL模板.xlsx")
+ExcelDemo.write_excel_by_openpyxl("D:\\excel.xlsx")
