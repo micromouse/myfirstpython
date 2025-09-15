@@ -1,7 +1,7 @@
 from typing import Callable, Dict
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.cell.cell import Cell
-from cell_parse_result import CellparseResult
+from excel.core.models.cell_parse_result import CellparseResult
 
 class Dispatcher:
     """
@@ -31,10 +31,10 @@ class Dispatcher:
         return decorator
 
     @classmethod
-    def get_handler(cls, keyword: str) -> Callable[[Worksheet, Cell], CellparseResult]:
+    def get_handler(cls, keyword: str) -> Callable[[Worksheet, Cell], CellparseResult] | None:
         """
         获得指定关键字的处理器函数
         :param keyword: 关键字
         :return: 关键字处理器函数
         """
-        return cls._handlers.get(keyword)
+        return cls._handlers.get(keyword) if keyword else None
