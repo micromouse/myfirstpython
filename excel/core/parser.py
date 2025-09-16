@@ -38,8 +38,7 @@ class Parser:
         :return: 解析结果
         """
         current_row_index = 1
-        max_row_index = self.sheet.max_row
-        while current_row_index <= max_row_index:
+        while current_row_index <= self.sheet.max_row:
             next_row_index = current_row_index + 1
 
             # 处理当前行所有单元格内容

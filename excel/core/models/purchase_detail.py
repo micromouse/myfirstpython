@@ -1,4 +1,5 @@
 from decimal import Decimal
+from abc import ABC
 from typing import TypedDict
 
 class PurchaseDetail(TypedDict):
@@ -11,11 +12,23 @@ class PurchaseDetail(TypedDict):
         可以定义必需和可选字段
         对象本质还是字典
     """
-    hs_code: str
-    model: str
+    shipping_marks: str
     material_code: str
     description: str
+
+class CI00PurchaseDetail(PurchaseDetail):
+    """
+    CI00采购明细模型
+    """
     quantity: int
     unit_price: Decimal
     amount_usd: Decimal
     origin_country: str
+    pass
+
+class PL10PurchaseDetail(PurchaseDetail):
+    """
+    PL10采购明细模型
+    """
+    total_quantity: int
+    total_packages: int
