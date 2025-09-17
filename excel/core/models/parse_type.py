@@ -1,5 +1,6 @@
-from enum import Enum, auto
+from enum import Enum, auto, unique
 
+@unique
 class ParseType(Enum):
     READ = auto()
     WRITE = auto()

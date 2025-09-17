@@ -32,13 +32,22 @@ class Parser:
         """
         self.sheet = sheet
         self.workbook = workbook
-        self._result: Dict[str, Any] = {}
+
+    def save(self, filename: str):
+        """
+        保存Workbook
+        :param filename: 文件名
+        """
+        self.workbook.save(filename)
 
     def parse(self, type: ParseType) -> Dict[str, Any]:
         """
         解析Excel
         :return: 解析结果
         """
+        final_result: Dict[str, Any] = {}
+
+        # 循环整个Sheet
         current_row_index = 1
         while current_row_index <= self.sheet.max_row:
             next_row_index = current_row_index + 1
@@ -52,28 +61,31 @@ class Parser:
 
                     # 需要处理单元格内容时才处理
                     if handler:
-                        parse_result = handler(self.sheet, cell)
-                        self._merge_parse_result(parse_result.result)
-                        if parse_result.next_row_index > current_row_index:
-                            next_row_index = parse_result.next_row_index
+                        handle_result = handler(self.sheet, cell)
+                        self._merge_parse_result(final_result, handle_result.result)
+                        if handle_result.next_row_index > current_row_index:
+                            next_row_index = handle_result.next_row_index
                             break
-                        elif parse_result.next_row_index == 0:
+                        elif handle_result.next_row_index == 0:
                             break
 
             # 下一个要处理的Excel行
             current_row_index = next_row_index
 
-        return self._result
+        return final_result
 
-    def _merge_parse_result(self, this_result: Dict[str, Any]):
+    def _merge_parse_result(self, final_result: Dict[str, Any], this_result: Dict[str, Any]):
         """
         合并当前单元格解析结果
+        :param final_result: 需要合并到的结果词典
         :param this_result: 当前单元格解析结果
         """
         for key, value in this_result.items():
-            if key in self._result:
+            if key in final_result:
                 raise ValueError(f"重复的Key: {key}")
-            self._result[key] = value
+            final_result[key] = value
+
+        return self
 
     def __enter__(self):
         """
