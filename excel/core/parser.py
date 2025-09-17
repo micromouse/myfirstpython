@@ -4,8 +4,10 @@ from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
+from excel.core.Utils import Utils
 from excel.core.dispatcher import Dispatcher
 from excel.core.models.parse_type import ParseType
+import excel.core.Utils
 
 class Parser:
     """
@@ -56,13 +58,13 @@ class Parser:
             for cell in self.sheet[current_row_index]:
                 # 单元格有内容才处理
                 if cell.value is not None:
-                    value = str(cell.value).strip()
+                    value = Utils.get_cell_value(self.sheet, cell)
                     handler = Dispatcher.get_handler(f"{type}{value}")
 
                     # 需要处理单元格内容时才处理
                     if handler:
                         handle_result = handler(self.sheet, cell)
-                        self._merge_parse_result(final_result, handle_result.result)
+                        Utils.merge_parse_result(final_result, handle_result.result)
                         if handle_result.next_row_index > current_row_index:
                             next_row_index = handle_result.next_row_index
                             break
@@ -73,19 +75,6 @@ class Parser:
             current_row_index = next_row_index
 
         return final_result
-
-    def _merge_parse_result(self, final_result: Dict[str, Any], this_result: Dict[str, Any]):
-        """
-        合并当前单元格解析结果
-        :param final_result: 需要合并到的结果词典
-        :param this_result: 当前单元格解析结果
-        """
-        for key, value in this_result.items():
-            if key in final_result:
-                raise ValueError(f"重复的Key: {key}")
-            final_result[key] = value
-
-        return self
 
     def __enter__(self):
         """
