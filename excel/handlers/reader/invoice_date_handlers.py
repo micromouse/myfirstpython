@@ -10,7 +10,7 @@ class InvoicedateHandlers:
     """
 
     @staticmethod
-    @Dispatcher.regiter_handler("INVOICE DATE :")
+    @Dispatcher.regiter_handler("READ_INVOICE DATE :")
     def handle_invoice_date(sheet: Worksheet, cell: Cell) -> CellparseResult:
         """
         处理发票日期

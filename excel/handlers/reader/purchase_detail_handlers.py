@@ -14,7 +14,7 @@ class PurchaseDetailHandlers:
     """
 
     @staticmethod
-    @Dispatcher.regiter_handler("SHIPPING")
+    @Dispatcher.regiter_handler("READ_SHIPPING")
     def handle_purchase_details(sheet: Worksheet, cell: Cell) -> CellparseResult:
         """
         处理采购明细

@@ -3,7 +3,9 @@ from typing import Dict, Any
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
+
 from excel.core.dispatcher import Dispatcher
+from excel.core.models.parse_type import ParseType
 
 class Parser:
     """
@@ -32,7 +34,7 @@ class Parser:
         self.workbook = workbook
         self._result: Dict[str, Any] = {}
 
-    def parse(self) -> Dict[str, Any]:
+    def parse(self, type: ParseType) -> Dict[str, Any]:
         """
         解析Excel
         :return: 解析结果
@@ -46,13 +48,16 @@ class Parser:
                 # 单元格有内容才处理
                 if cell.value is not None:
                     value = str(cell.value).strip()
-                    handler = Dispatcher.get_handler(value)
+                    handler = Dispatcher.get_handler(f"{type}{value}")
+
+                    # 需要处理单元格内容时才处理
                     if handler:
                         parse_result = handler(self.sheet, cell)
                         self._merge_parse_result(parse_result.result)
-                        if parse_result.next_row_index > current_row_index or parse_result.next_row_index == 0:
-                            if parse_result.next_row_index > current_row_index:
-                                next_row_index = parse_result.next_row_index
+                        if parse_result.next_row_index > current_row_index:
+                            next_row_index = parse_result.next_row_index
+                            break
+                        elif parse_result.next_row_index == 0:
                             break
 
             # 下一个要处理的Excel行

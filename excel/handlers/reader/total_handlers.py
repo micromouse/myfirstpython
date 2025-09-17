@@ -13,7 +13,7 @@ class TotalHandlers:
     """
 
     @staticmethod
-    @Dispatcher.regiter_handler("TOTAL :")
+    @Dispatcher.regiter_handler("READ_TOTAL :")
     def handle_total(sheet: Worksheet, cell: Cell) -> CellparseResult:
         """
         处理合计值
@@ -27,7 +27,7 @@ class TotalHandlers:
         })
 
     @staticmethod
-    @Dispatcher.regiter_handler("TOTAL GROSS WEIGHT")
+    @Dispatcher.regiter_handler("READ_TOTAL GROSS WEIGHT")
     def handle_total_gross_weight(sheet: Worksheet, cell: Cell) -> CellparseResult:
         """
         处理 [TOTAL GROSS WEIGHT][TOTAL NET WEIGHT][TOTAL PACKAGES][TOTAL QUANTITY][TOTAL MEASUREMENT]
