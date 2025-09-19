@@ -3,9 +3,9 @@ from numbers import Number
 
 from num2words import num2words
 
-class CurrencyFormatter:
+class UtilsCurrencyFormatter:
     """
-    货币格式化器
+    excel工具类 - 货币格式化
     """
 
     @staticmethod
@@ -22,7 +22,7 @@ class CurrencyFormatter:
         if amount == 0:
             return "**SAY US DOLLARS ZERO ONLY**"
         else:
-            return f"**SAY US DOLLARS {CurrencyFormatter._money_to_english(amount)} ONLY**"
+            return f"**SAY US DOLLARS {UtilsCurrencyFormatter._money_to_english(amount)} ONLY**"
 
     @staticmethod
     def _money_to_english(amount: Decimal) -> str:

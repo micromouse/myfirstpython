@@ -1,13 +1,13 @@
 from decimal import Decimal
-from typing import List, Union
+from typing import List, Union, TypeVar
 
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.cell.cell import Cell
 
-from excel.core.Utils import Utils
+from excel.core.utils import Utils
 from excel.core.dispatcher import Dispatcher
-from excel.core.models.cell_parse_result import CellparseResult
-from excel.core.models.purchase_detail import CI00PurchaseDetail, PL10PurchaseDetail
+from excel.core.models.parse_result import CellparseResult
+from excel.core.models.purchase_detail import PurchaseDetail, CI00PurchaseDetail, PL10PurchaseDetail
 
 class PurchaseDetailHandlers:
     """
@@ -21,7 +21,7 @@ class PurchaseDetailHandlers:
         处理采购明细
         """
         invoice_number = ""
-        purchase_details: List[Union[CI00PurchaseDetail, PL10PurchaseDetail]] = []
+        purchase_details: List[PurchaseDetail] = []
         last_row_index = cell.row + 1
 
         # 从当前单元格所在行开始迭代

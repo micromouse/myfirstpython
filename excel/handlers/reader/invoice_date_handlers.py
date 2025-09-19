@@ -2,7 +2,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.cell.cell import Cell
 
 from excel.core.dispatcher import Dispatcher
-from excel.core.models.cell_parse_result import CellparseResult
+from excel.core.models.parse_result import CellparseResult
 
 class InvoicedateHandlers:
     """

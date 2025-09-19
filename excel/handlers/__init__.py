@@ -20,5 +20,5 @@ def import_submodules(package: Union[str | ModuleType], recursive=True):
         if recursive and is_pkg:
             import_submodules(module)
 
-# 从当前包开始递归导入所有子模块和子包
+# 递归导入子模块的逻辑
 import_submodules(__name__)

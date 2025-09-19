@@ -4,8 +4,8 @@ from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.cell.cell import Cell
 
 from excel.core.dispatcher import Dispatcher
-from excel.core.models.cell_parse_result import CellparseResult
-from excel.core.currency_formatter import CurrencyFormatter
+from excel.core.models.parse_result import CellparseResult
+from excel.core.utils import Utils
 
 class TotalHandlers:
     """
@@ -23,7 +23,7 @@ class TotalHandlers:
         return CellparseResult({
             "total_quantity": total_quantity,
             "total_amount": total_amount,
-            "total_amount_english": CurrencyFormatter.format_currency_amount(total_amount)
+            "total_amount_english": Utils.format_currency_amount(total_amount)
         })
 
     @staticmethod

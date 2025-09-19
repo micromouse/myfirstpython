@@ -1,10 +1,9 @@
-from typing import Dict, Any
 from openpyxl.cell.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
-class Utils:
+class UtilsExcel:
     """
-    excel工具
+    excel工具 - excel
     """
 
     @staticmethod
@@ -30,16 +29,3 @@ class Utils:
 
         # 单元格无值且不在合并单元格中
         return value.strip()
-
-    @staticmethod
-    def merge_parse_result(to_result: Dict[str, Any], this_result: Dict[str, Any]):
-        """
-        合并当前单元格解析结果
-        :param to_result: 需要合并到的结果词典
-        :param this_result: 当前单元格解析结果
-        """
-        for key, value in this_result.items():
-            if key in to_result:
-                raise ValueError(f"重复的Key: {key}")
-
-            to_result[key] = value
