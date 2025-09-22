@@ -5,7 +5,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from excel.core.dispatcher import Dispatcher
-from excel.core.models.parse_result import SheetParseResult, CI00ParseResult, PL10ParseResult
+from excel.core.models.parse_result import ReadParseResult, CI00ReadParseResult, PL10ReadParseResult
 from excel.core.models.parse_type import ParseType
 from excel.core.utils import Utils
 
@@ -13,28 +13,21 @@ class Parser:
     """
     Excel解析器
     """
-    TParseResult = TypeVar("TParseResult", bound=SheetParseResult)
+    TParseResult = TypeVar("TParseResult", bound=ReadParseResult)
 
-    @classmethod
-    def from_file(cls, filename: str, sheet_name: str) -> "Parser":
+    def __init__(self, filename: str, sheet_name: str):
         """
-        从文件加载Excel解析器
+        初始化Excel解析器
         :param filename: 文件名
         :param sheet_name: sheet名
-        :return: Parser实例
         """
         workbook = load_workbook(filename)
         if sheet_name not in workbook:
             raise ValueError(f"Sheet [{filename} - {sheet_name}] 不存在")
-        return cls(workbook[sheet_name], workbook)
 
-    def __init__(self, sheet: Worksheet, workbook: Workbook = None):
-        """
-        初始化Excel解析器
-        :param sheet: 要解析的Excel Worksheet
-        """
-        self.sheet = sheet
+        self.filename = filename
         self.workbook = workbook
+        self.sheet = workbook[sheet_name]
 
     def save(self, filename: str):
         """

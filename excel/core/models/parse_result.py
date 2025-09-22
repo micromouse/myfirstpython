@@ -27,13 +27,18 @@ class CellparseResult:
         if self.result is None:
             self.result = {}
 
-class SheetParseResult(TypedDict):
+class ReadParseResult(TypedDict):
+    """
+    读取Excel Sheet解析结果基类
+    """
+    filename: str
+    invoice_type: str
     invoice_date: str
     invoice_number: str
 
-class PL10ParseResult(SheetParseResult):
+class PL10ReadParseResult(ReadParseResult):
     """
-    PL10 Sheet解析结果
+    读取PL10 Sheet解析结果
     """
     purchase_details: List[PL10PurchaseDetail]
     total_gross_weight: float
@@ -42,9 +47,9 @@ class PL10ParseResult(SheetParseResult):
     total_quantity: int
     total_measurement: float
 
-class CI00ParseResult(SheetParseResult):
+class CI00ReadParseResult(ReadParseResult):
     """
-    CI00 Sheet解析结果
+    读取CI00 Sheet解析结果
     """
     purchase_details: List[CI00PurchaseDetail]
     total_quantity: int
