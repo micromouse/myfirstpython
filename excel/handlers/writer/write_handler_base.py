@@ -1,4 +1,4 @@
-from typing import Dict, Any, TypeVar, Type, overload
+from typing import Dict, Any, TypeVar, Type, overload, Union
 
 from excel.core.models.parse_result import CI00ReadParseResult, PL10ReadParseResult, ReadParseResult
 
@@ -17,7 +17,7 @@ class WriteHandlerBase:
     @classmethod
     def _get_data_source(cls, data_type: Type[PL10ReadParseResult]) -> PL10ReadParseResult:
         ...
-    
+
     @classmethod
     def set_data_source(cls, ci00_data: CI00ReadParseResult = None, pl10_data: PL10ReadParseResult = None):
         """
@@ -40,3 +40,12 @@ class WriteHandlerBase:
             return cls._pl10_data_source
         else:
             raise ValueError(f"不支持的数据类型[{data_type}]")
+
+    @classmethod
+    def _get_common_data_source(cls) -> Union[CI00ReadParseResult, PL10ReadParseResult]:
+        if cls._ci00_data_source:
+            return cls._ci00_data_source
+        elif cls._pl10_data_source:
+            return cls._pl10_data_source
+        else:
+            raise ValueError("没有任何数据源可用")

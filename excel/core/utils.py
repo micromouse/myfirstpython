@@ -1,10 +1,9 @@
 from typing import Dict, Any
 
-from excel.core.utils_config import UtilsConfig
 from excel.core.utils_currency_formatter import UtilsCurrencyFormatter
 from excel.core.utils_excel import UtilsExcel
 
-class Utils(UtilsCurrencyFormatter, UtilsExcel, UtilsConfig):
+class Utils(UtilsCurrencyFormatter, UtilsExcel):
     """
     excel工具
     """

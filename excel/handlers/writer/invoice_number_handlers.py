@@ -9,6 +9,7 @@ from excel.core.fluent_excel_writer import FluentExcelWriter
 from excel.core.models.parse_result import CellparseResult, CI00ReadParseResult
 from excel.core.dispatcher import Dispatcher
 from excel.core.utils import Utils
+from excel.handlers.common.application_manager import ApplicationManager
 from excel.handlers.writer.write_handler_base import WriteHandlerBase
 
 @Dispatcher.register_handlers
@@ -25,7 +26,7 @@ class InvoicenumberHandlers(WriteHandlerBase):
         处理发票号(货代Invoice和With material code Sheet用)
         """
         sheet.cell(cell.row, cell.column + 2).value = cls._save_and_get_invoice_number()
-        return CellparseResult()
+        return CellparseResult({}, next_row_index=cell.row)
 
     @classmethod
     def _save_and_get_invoice_number(cls) -> str:
@@ -54,7 +55,7 @@ class InvoicenumberHandlers(WriteHandlerBase):
         :param current_invoice_nubmers: 当前发票号集合
         :return: 新发票号
         """
-        file = Utils.get_config("registered_invoice_number_file")
+        file = ApplicationManager.appsettings.registered_invoice_number_file
         registered_invoice_numbers = Utils.get_column_values(file, 0, 3)
         unused_invoice_numbers = sorted((set(current_invoice_nubmers) - set(registered_invoice_numbers)), reverse=True)
 
@@ -101,5 +102,5 @@ class InvoicenumberHandlers(WriteHandlerBase):
             sheet.cell(new_row_index, 4, original_invoice_number)
 
         FluentExcelWriter() \
-            .set_file(Utils.get_config("registered_invoice_number_file")) \
+            .set_file(ApplicationManager.appsettings.registered_invoice_number_file) \
             .write(_add_new_invoice_row)
