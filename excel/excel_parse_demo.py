@@ -6,17 +6,20 @@ from excel.appsettings import AppSettings
 from excel.core.models.parse_result import CI00ReadParseResult, WriteParseResult
 from excel.core.servicelocator import ServiceLocator
 from excel.handlers.injectors.servicemodule import ServiceModule
-from excel.handlers.writer.writer_datasource import WriterDataSource
+from excel.handlers.models.writer_datasource import WriterDataSource
+from excel.handlers.services.battery_brand_service import BatteryBrandService
 
 appsettings = AppSettings(
     registered_invoice_number_file=r"D:\Shadowbot\埃及-自动化开票流程-更新\整合发票号登记表.xlsx",
     hscode_file="b",
-    battry_brand_file="c",
+    battry_brand_file=r"D:\Shadowbot\埃及-自动化开票流程-更新\电池BRAND信息.xlsx",
     oppo_phone_model_authentication_file="d",
     realme_phone_model_authentication_file="e")
 ServiceLocator \
     .initial(ServiceModule()) \
     .register_instance(appsettings)
+
+print(ServiceLocator.getservice(BatteryBrandService).get_battry_brand("611303000168"))
 
 # 读取 采购CI00 Sheet
 root_folder = r"D:\Shadowbot\埃及-自动化开票流程-更新"

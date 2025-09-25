@@ -1,6 +1,7 @@
 import injector
 from injector import Binder
 
+from excel.handlers.services.battery_brand_service import BatteryBrandService
 from excel.handlers.writer.invoice_date_handlers import InvoicedateHandlers
 from excel.handlers.writer.invoice_number_handlers import InvoicenumberHandlers
 from excel.handlers.writer.purchase_detail_handlers import PurchasedetailHandlers
@@ -19,3 +20,4 @@ class ServiceModule(injector.Module):
         binder.bind(InvoicedateHandlers, to=InvoicedateHandlers)
         binder.bind(InvoicenumberHandlers, to=InvoicenumberHandlers)
         binder.bind(PurchasedetailHandlers, to=PurchasedetailHandlers)
+        binder.bind(BatteryBrandService, to=BatteryBrandService)

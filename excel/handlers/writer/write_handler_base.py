@@ -1,6 +1,6 @@
 from injector import inject
 
-from excel.handlers.writer.writer_datasource import WriterDataSource
+from excel.handlers.models.writer_datasource import WriterDataSource
 
 class WriteHandlerBase:
     """
