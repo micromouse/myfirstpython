@@ -1,13 +1,13 @@
 from decimal import Decimal
-from typing import List, Union, TypeVar
+from typing import List
 
-from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.cell.cell import Cell
+from openpyxl.worksheet.worksheet import Worksheet
 
-from excel.core.utils import Utils
 from excel.core.dispatcher import Dispatcher
 from excel.core.models.parse_result import CellparseResult
 from excel.core.models.purchase_detail import PurchaseDetail, CI00PurchaseDetail, PL10PurchaseDetail
+from excel.core.utils import Utils
 
 class PurchaseDetailHandlers:
     """

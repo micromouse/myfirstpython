@@ -11,11 +11,10 @@ class InvoicedateHandlers(WriteHandlerBase):
     发票日期处理器
     """
 
-    @classmethod
     @Dispatcher.keyword("WRITE_DATE :")
-    def handle_invoice_date(cls, sheet: Worksheet, cell: Cell) -> CellparseResult:
+    def handle_invoice_date(self, sheet: Worksheet, cell: Cell) -> CellparseResult:
         """
         处理发票日期
         """
-        sheet.cell(cell.row, cell.column + 1).value = cls._get_common_data_source()["invoice_date"]
+        sheet.cell(cell.row, cell.column + 1).value = self._datasource.get_common_data_source()["invoice_date"]
         return CellparseResult()

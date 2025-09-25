@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import List, Any, Callable
+from typing import List, Callable
 
 from openpyxl import load_workbook
 from openpyxl.cell.cell import Cell

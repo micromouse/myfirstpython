@@ -27,7 +27,12 @@ class CellparseResult:
         if self.result is None:
             self.result = {}
 
-class ReadParseResult(TypedDict):
+class SheetParseResult(TypedDict):
+    """
+    Excel Sheet解析结果
+    """
+
+class ReadParseResult(SheetParseResult):
     """
     读取Excel Sheet解析结果基类
     """
@@ -55,3 +60,8 @@ class CI00ReadParseResult(ReadParseResult):
     total_quantity: int
     total_amount: int
     total_amount_english: str
+
+class WriteParseResult(SheetParseResult):
+    """
+    写入Excel Sheet解析结果
+    """

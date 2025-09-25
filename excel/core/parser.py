@@ -1,11 +1,9 @@
-from typing import Dict, Any, TypeVar, Generic, List, Type
+from typing import Dict, Any, TypeVar, Type
 
 from openpyxl.reader.excel import load_workbook
-from openpyxl.workbook import Workbook
-from openpyxl.worksheet.worksheet import Worksheet
 
 from excel.core.dispatcher import Dispatcher
-from excel.core.models.parse_result import ReadParseResult, CI00ReadParseResult, PL10ReadParseResult
+from excel.core.models.parse_result import SheetParseResult
 from excel.core.models.parse_type import ParseType
 from excel.core.utils import Utils
 
@@ -13,7 +11,7 @@ class Parser:
     """
     Excel解析器
     """
-    TParseResult = TypeVar("TParseResult", bound=ReadParseResult)
+    TParseResult = TypeVar("TParseResult", bound=SheetParseResult)
 
     def __init__(self, filename: str, sheet_name: str):
         """
@@ -36,7 +34,7 @@ class Parser:
         """
         self.workbook.save(filename)
 
-    def parse(self, type: ParseType, cls: Type[TParseResult]) -> TParseResult:
+    def parse(self, type: ParseType, result_type: Type[TParseResult]) -> TParseResult:
         """
         解析Excel
         :return: 解析结果
@@ -68,7 +66,7 @@ class Parser:
             # 下一个要处理的Excel行
             current_row_index = next_row_index
 
-        return cls(**final_result)
+        return result_type(**final_result)
 
     def __enter__(self):
         """

@@ -1,14 +1,12 @@
 from os import path
-from typing import Dict
 
-from core.parser import Parser
 from core.models.parse_type import ParseType
-from excel import handlers
-from excel.core.models.parse_result import CI00ReadParseResult
-from excel.core.utils import Utils
-from excel.handlers.common.application_manager import ApplicationManager
-from excel.handlers.common.appsettings import AppSettings
-from excel.handlers.writer.write_handler_base import WriteHandlerBase
+from core.parser import Parser
+from excel.appsettings import AppSettings
+from excel.core.models.parse_result import CI00ReadParseResult, WriteParseResult
+from excel.core.servicelocator import ServiceLocator
+from excel.handlers.injectors.servicemodule import ServiceModule
+from excel.handlers.writer.writer_datasource import WriterDataSource
 
 appsettings = AppSettings(
     registered_invoice_number_file=r"D:\Shadowbot\埃及-自动化开票流程-更新\整合发票号登记表.xlsx",
@@ -16,7 +14,9 @@ appsettings = AppSettings(
     battry_brand_file="c",
     oppo_phone_model_authentication_file="d",
     realme_phone_model_authentication_file="e")
-ApplicationManager.init_appsettings(appsettings)
+ServiceLocator \
+    .initial(ServiceModule()) \
+    .register_instance(appsettings)
 
 # 读取 采购CI00 Sheet
 root_folder = r"D:\Shadowbot\埃及-自动化开票流程-更新"
@@ -28,10 +28,10 @@ with Parser(file, "CI00") as parser_read:
     read_ci00_result["invoice_type"] = "电池"
 
 # 写入清关CI00 Sheet
-WriteHandlerBase.set_data_source(read_ci00_result)
+ServiceLocator.register_instance(WriterDataSource(ci00_data=read_ci00_result))
 write_file = path.join(root_folder, r"收货方：OPPO Egypt manufacturing\OPPO品牌\电池\销售CI&PL模板.xlsx")
 with Parser(write_file, "货代 Invoice") as parser_write:
-    parser_write.parse(ParseType.WRITE, CI00ReadParseResult)
+    parser_write.parse(ParseType.WRITE, WriteParseResult)
     parser_write.save(path.join(root_folder, "my.xlsx"))
 
 print("done")

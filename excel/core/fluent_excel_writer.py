@@ -2,8 +2,8 @@ from typing import Callable
 
 from openpyxl.worksheet.worksheet import Worksheet
 
-from excel.core.utils import Utils
 from excel.core.models.write_excel_model import WriteExcelModel
+from excel.core.utils import Utils
 
 class FluentExcelWriter:
     """

@@ -1,9 +1,11 @@
+import inspect
 from typing import Callable, Dict
 
-from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.cell.cell import Cell
+from openpyxl.worksheet.worksheet import Worksheet
 
 from excel.core.models.parse_result import CellparseResult
+from excel.core.servicelocator import ServiceLocator
 
 class Dispatcher:
     """
@@ -29,13 +31,11 @@ class Dispatcher:
             if keyword in cls._handlers:
                 raise ValueError(f"关键字 '{keyword}' 已经被注册过了")
 
-            if isinstance(func, classmethod):
-                real_func = func.__func__
-
-                def cls_func(sheet: Worksheet, cell: Cell) -> CellparseResult:
-                    return real_func(owner_cls, sheet, cell)
-
-                cls._handlers[keyword] = cls_func
+            parameters = list(inspect.signature(func).parameters.keys())
+            if parameters[0] == "cls":
+                cls._handlers[keyword] = lambda sheet, cell: func.__func__(owner_cls, sheet, cell)
+            elif parameters[0] == "self":
+                cls._handlers[keyword] = lambda sheet, cell: func.__get__(ServiceLocator.getservice(owner_cls))(sheet, cell)
             else:
                 cls._handlers[keyword] = func
 
