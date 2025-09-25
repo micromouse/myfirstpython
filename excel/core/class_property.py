@@ -1,4 +1,4 @@
-from typing import Generic, Type, TypeVar, Callable, Any, Optional
+from typing import Generic, Type, TypeVar, Callable, Any, Optional, Dict
 
 TResult = TypeVar("TResult")
 
@@ -23,3 +23,19 @@ class ClassProperty(Generic[TResult], property):
         """
         # self.fget 就是应用了 ClassProperty 注解的函数
         return self.fget(owner)
+
+class ClassPropertyDemo:
+    """
+    类属性演示
+    """
+    _user: Dict[str, Any] = {
+        "name": "abc",
+        "age": 18
+    }
+
+    # noinspection PyMethodParameters
+    @ClassProperty
+    def user(cls) -> Dict[str, Any]:
+        return cls._user
+
+print(ClassPropertyDemo.user["age"])
