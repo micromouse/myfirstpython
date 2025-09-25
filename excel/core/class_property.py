@@ -38,4 +38,5 @@ class ClassPropertyDemo:
     def user(cls) -> Dict[str, Any]:
         return cls._user
 
+ClassPropertyDemo.user = {"name": "c", "age": 20}
 print(ClassPropertyDemo.user["age"])
