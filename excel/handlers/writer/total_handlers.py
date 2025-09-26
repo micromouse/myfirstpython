@@ -35,8 +35,7 @@ class TotalHandlers(WriteHandlerBase):
         """
         处理美元合计英文显示
         """
-        sheet.merge_cells(start_row=cell.row + 1, start_column=cell.column, end_row=cell.row + 1, end_column=cell.column + 4)
-        sheet.row_dimensions[cell.row + 1].height = 40
-        sheet.cell(cell.row + 1, cell.column).alignment = Alignment(wrap_text=True, vertical="center")
-        sheet.cell(cell.row + 1, cell.column, self._datasource.get_data_source(CI00ReadParseResult)["total_amount_english"])
-        return CellparseResult(next_row_index=cell.row + 2)
+        sheet.merge_cells(start_row=cell.row + 2, start_column=cell.column, end_row=cell.row + 2, end_column=cell.column + 4)
+        sheet.cell(cell.row + 2, cell.column).alignment = Alignment(wrap_text=True, vertical="center")
+        sheet.cell(cell.row + 2, cell.column, self._datasource.get_data_source(CI00ReadParseResult)["total_amount_english"])
+        return CellparseResult(next_row_index=cell.row + 3)

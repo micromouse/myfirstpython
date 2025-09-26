@@ -20,6 +20,8 @@ class BatteryBrandService:
         :param appsettings: 应用程序设置
         """
         self._appsettings = appsettings
+        if not BatteryBrandService._battery_brand_models:
+            self._load_battry_brands()
 
     def get_battry_brand(self, material_code: str) -> BatteryBrandModel:
         """
@@ -27,9 +29,6 @@ class BatteryBrandService:
         :param material_code: 物料编码
         :return: 电池品牌信息模型
         """
-        if not self._battery_brand_models:
-            self._load_battry_brands()
-
         if material_code not in self._battery_brand_models:
             raise IndexError(f"电池品牌集合中没有当前物料编码[{material_code}]信息")
 
@@ -39,18 +38,16 @@ class BatteryBrandService:
         """
         加载电池品牌信息
         """
-        with Utils.open_workbook(self._appsettings.battry_brand_file) as workbook:
+        with Utils.open_workbook(self._appsettings.battery_brand_file) as workbook:
             sheet: Worksheet = workbook.worksheets[0]
             for row in sheet.iter_rows():
                 if row[1].value:
                     material_code = str(row[1].value).strip()
-                    if material_code in self._battery_brand_models:
-                        raise KeyError(f"物料编码[{material_code}]重复")
-
-                    self._battery_brand_models[material_code] = BatteryBrandModel(
-                        material_code=material_code,
-                        model=str(row[0].value).strip(),
-                        description=str(row[2].value).strip(),
-                        supplier=str(row[3].value).strip(),
-                        brand=str(row[4].value).strip()
-                    )
+                    if material_code not in self._battery_brand_models:
+                        self._battery_brand_models[material_code] = BatteryBrandModel(
+                            material_code=material_code,
+                            model=str(row[0].value).strip(),
+                            description=str(row[2].value).strip(),
+                            supplier=str(row[3].value).strip(),
+                            brand=str(row[4].value).strip()
+                        )

@@ -53,7 +53,7 @@ class UtilsExcel:
         return value.strip()
 
     @staticmethod
-    def get_column_values(file: str, sheet_index: int, column_index: int) -> List[str]:
+    def get_excel_column_values(file: str, sheet_index: int, column_index: int) -> List[str]:
         """
         获得指定excel sheet column值集合
         :param file: excel文件
