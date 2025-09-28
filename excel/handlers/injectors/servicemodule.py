@@ -1,6 +1,9 @@
 import injector
 from injector import Binder, SingletonScope
 
+from excel.core.injectors.iterationscope import IterationScope
+from excel.handlers.models.pending_file_model import PendingFileModel
+from excel.handlers.models.writer_datasource import WriterDataSource
 from excel.handlers.services.battery_brand_service import BatteryBrandService
 from excel.handlers.writer.invoice_date_handlers import InvoicedateHandlers
 from excel.handlers.writer.invoice_number_handlers import InvoicenumberHandlers
@@ -21,3 +24,5 @@ class ServiceModule(injector.Module):
         binder.bind(InvoicenumberHandlers, to=InvoicenumberHandlers)
         binder.bind(PurchasedetailHandlers, to=PurchasedetailHandlers)
         binder.bind(BatteryBrandService, to=BatteryBrandService, scope=SingletonScope)
+        binder.bind(PendingFileModel, scope=IterationScope)
+        binder.bind(WriterDataSource, scope=IterationScope)

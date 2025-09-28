@@ -1,10 +1,10 @@
-from os import write
+from typing import Tuple, Any, List
 
 from excel.appsettings import AppSettingsFactory
 from excel.core.models.parse_result import PL10ReadParseResult, CI00ReadParseResult, WriteParseResult
 from excel.core.models.parse_type import ParseType
 from excel.core.parser import Parser
-from excel.core.servicelocator import ServiceLocator
+from excel.core.injectors.servicelocator import ServiceLocator
 from excel.handlers.injectors.servicemodule import ServiceModule
 from excel.handlers.models.pending_file_model import PendingFileModel
 from excel.handlers.models.writer_datasource import WriterDataSource
@@ -28,12 +28,10 @@ class EgytpoppoSalesclearanceGenerator:
 
         # 循环处理所有采购CI&PL文件以生成响应的销售清关CI&PL文件
         for pending_file in ServiceLocator.getservice(FileScanService).scan():
-            # 注入当前待处理文件
-            ServiceLocator.register_instance(pending_file)
-
-            # 写[货代 Invoice] Sheet
-            cls._read_pending_file(pending_file, "CI00")
-            cls._write_sales_clearance_file(pending_file, "货代 Invoice")
+            # 写[货代 Invoice, With material code, 货代 Packing] Sheet
+            cls._write_sales_clearance_file(pending_file, "CI00", "货代 Invoice")
+            cls._write_sales_clearance_file(pending_file, "CI00", "With material code")
+            cls._write_sales_clearance_file(pending_file, "PL10", "货代 Packing")
             break
 
     @staticmethod
@@ -53,31 +51,43 @@ class EgytpoppoSalesclearanceGenerator:
         _ = ServiceLocator.getservice(FileScanService)
 
     @staticmethod
-    def _read_pending_file(pending_file: PendingFileModel, sheet_name: str):
+    def _read_pending_file(pending_file: PendingFileModel, sheet_name: str) -> WriterDataSource:
         """
         读待处理文件
         :param pending_file: 待处理文件模型
         :param sheet_name: Sheet名称
+        :return: 写入器数据源
         """
         with Parser(str(pending_file.pending_file_path), sheet_name) as parser_read:
             result_type = PL10ReadParseResult if sheet_name == "PL10" else CI00ReadParseResult
             parse_result = parser_read.parse(ParseType.READ, result_type)
             if result_type is CI00ReadParseResult:
-                ServiceLocator.register_instance(WriterDataSource(ci00_data=parse_result))
+                return WriterDataSource(ci00_data=parse_result)
             else:
-                ServiceLocator.register_instance(WriterDataSource(pl10_data=parse_result))
+                return WriterDataSource(pl10_data=parse_result)
 
     @staticmethod
-    def _write_sales_clearance_file(pending_file: PendingFileModel, sheet_name: str):
+    def _write_sales_clearance_file(pending_file: PendingFileModel, pending_sheet_name: str, write_sheet_name: str):
         """
         写销售清关CI&PL文件
-        :param pending_file:
-        :param sheet_name:
+        :param pending_file: 待处理文件
+        :param pending_sheet_name: 待处理文件Sheet名
+        :param write_sheet_name: 写入Excel文件Sheet名
         """
-        template_file = str(pending_file.brand_subcategory_path / pending_file.sales_cipl_template_name)
-        with Parser(template_file, sheet_name) as parser_write:
-            parser_write.parse(ParseType.WRITE, WriteParseResult)
+        # 读取待处理excel sheet获得待写入文件数据源
+        writer_datasource = cls._read_pending_file(pending_file, pending_sheet_name)
 
-            # 写入销售清关CI&PL文件
-            write_file = str(pending_file.sales_clearance_path / "my.xlsx")
-            parser_write.save(write_file)
+        bindings: List[Tuple[Type, Any]] = [
+            (PendingFileModel, pending_file),
+            (WriterDataSource, writer_datasource)
+        ]
+        with ServiceLocator \
+                .get_iteration_scope() \
+                .enter(*bindings):
+            template_file = str(pending_file.brand_subcategory_path / pending_file.sales_cipl_template_name)
+            with Parser(template_file, write_sheet_name) as parser_write:
+                parser_write.parse(ParseType.WRITE, WriteParseResult)
+
+                # 写入销售清关CI&PL文件
+                write_file = str(pending_file.sales_clearance_path / "my.xlsx")
+                parser_write.save(write_file)

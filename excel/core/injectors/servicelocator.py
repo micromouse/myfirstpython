@@ -3,6 +3,8 @@ from typing import Type, TypeVar
 import injector
 from black import Optional
 
+from excel.core.injectors.iterationscope import IterationScope
+
 T = TypeVar("T")
 
 class ServiceLocator:
@@ -10,12 +12,15 @@ class ServiceLocator:
     服务定位器
     """
     _injector: injector.Injector = None
+    _iteration_scope: IterationScope = None
 
     @classmethod
     def initial(cls, *modules: injector.Module) -> type["ServiceLocator"]:
         if cls._injector is not None:
             raise AttributeError("服务定位器已初始化")
         cls._injector = injector.Injector(modules)
+        cls._iteration_scope = IterationScope(cls._injector)
+        cls._injector.binder.bind(IterationScope, to=cls._iteration_scope)
         return cls
 
     @classmethod
@@ -47,3 +52,11 @@ class ServiceLocator:
         :return: 服务实例
         """
         return cls._injector.get(_type)
+
+    @classmethod
+    def get_iteration_scope(cls) -> IterationScope:
+        """
+        获得迭代范围
+        :return: 迭代范围
+        """
+        return cls._iteration_scope
