@@ -27,16 +27,17 @@ class Dispatcher:
             :param func: 处理器函数
             :return: 处理器函数
             """
-            if keyword in cls._handlers:
-                raise ValueError(f"关键字 '{keyword}' 已经被注册过了")
+            _keyword = keyword.upper()
+            if _keyword in cls._handlers:
+                raise ValueError(f"关键字 '{_keyword}' 已经被注册过了")
 
             parameters = list(inspect.signature(func).parameters.keys())
             if parameters[0] == "cls":
-                cls._handlers[keyword] = lambda cell: func.__func__(owner_cls, cell)
+                cls._handlers[_keyword] = lambda cell: func.__func__(owner_cls, cell)
             elif parameters[0] == "self":
-                cls._handlers[keyword] = lambda cell: func.__get__(ServiceLocator.getservice(owner_cls))(cell)
+                cls._handlers[_keyword] = lambda cell: func.__get__(ServiceLocator.getservice(owner_cls))(cell)
             else:
-                cls._handlers[keyword] = func
+                cls._handlers[_keyword] = func
 
             return func
 
@@ -60,7 +61,7 @@ class Dispatcher:
     @classmethod
     def keyword(cls, keyword: str):
         def decorator(func):
-            func._keyword = keyword
+            func._keyword = keyword.upper()
             return func
 
         return decorator
@@ -72,4 +73,4 @@ class Dispatcher:
         :param keyword: 关键字
         :return: 关键字处理器函数
         """
-        return cls._handlers.get(keyword) if keyword else None
+        return cls._handlers.get(keyword.upper()) if keyword else None

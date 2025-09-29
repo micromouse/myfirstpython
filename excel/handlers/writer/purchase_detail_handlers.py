@@ -27,7 +27,7 @@ class WritePurchasedetailHandlers(WriteHandlerBase):
         处理[货代Packing] Sheet采购明细
         """
         purchase_details = self._datasource.get_data_source(PL10ReadParseResult)["purchase_details"]
-        self._insert_blank_rows(cell.row + 2, len(purchase_details))
+        self._insert_blank_rows(cell.row + 1, len(purchase_details))
         return CellparseResult()
 
     def _insert_blank_rows(self, index: int, count: int):
@@ -40,7 +40,7 @@ class WritePurchasedetailHandlers(WriteHandlerBase):
         self._worksheet.insert_rows(index, count)
 
         # 重置新插入行的行高
-        for row_index in range(index, index + count):
+        for row_index in range(index, index + count + 5):
             self._worksheet.row_dimensions[row_index].height = None
 
         return self

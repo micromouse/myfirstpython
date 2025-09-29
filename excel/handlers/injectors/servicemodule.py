@@ -1,5 +1,5 @@
 import injector
-from injector import Binder, SingletonScope, NoScope
+from injector import Binder, NoScope, SingletonScope
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 

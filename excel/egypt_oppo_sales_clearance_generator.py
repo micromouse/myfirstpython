@@ -1,13 +1,12 @@
-from typing import Tuple, Any, List
-
+from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from excel.appsettings import AppSettingsFactory
+from excel.core.injectors.servicelocator import ServiceLocator
 from excel.core.models.parse_result import PL10ReadParseResult, CI00ReadParseResult, WriteParseResult
 from excel.core.models.parse_type import ParseType
 from excel.core.parser import Parser
-from excel.core.injectors.servicelocator import ServiceLocator
 from excel.core.utils import Utils
 from excel.handlers.injectors.servicemodule import ServiceModule
 from excel.handlers.models.pending_file_model import PendingFileModel
@@ -32,10 +31,12 @@ class EgytpoppoSalesclearanceGenerator:
 
         # 循环处理所有采购CI&PL文件以生成响应的销售清关CI&PL文件
         for pending_file in ServiceLocator.getservice(FileScanService).scan():
-            # 写[货代 Invoice, With material code, 货代 Packing] Sheet
-            cls._write_sales_clearance_file(pending_file, "CI00", "货代 Invoice")
-            cls._write_sales_clearance_file(pending_file, "CI00", "With material code")
-            cls._write_sales_clearance_file(pending_file, "PL10", "货代 Packing")
+            # 读 [采购CI&PL] Excel文件
+            ci00_writer_datasource = cls._read_pending_file(pending_file, "CI00")
+            cpl10_writer_datasource = cls._read_pending_file(pending_file, "PL10")
+
+            # 写[货代 Invoice, 货代 Packing] Sheet
+            cls._write_sales_clearance_file(pending_file, ci00_writer_datasource, cpl10_writer_datasource)
             break
 
     @staticmethod
@@ -55,33 +56,48 @@ class EgytpoppoSalesclearanceGenerator:
         _ = ServiceLocator.getservice(FileScanService)
 
     @classmethod
-    def _write_sales_clearance_file(cls, pending_file: PendingFileModel, pending_sheet_name: str, write_sheetname: str):
+    def _write_sales_clearance_file(
+            cls,
+            pending_file: PendingFileModel,
+            ci00_writer_datasource: WriterDataSource,
+            pl10_writer_datasource: WriterDataSource):
         """
         写销售清关CI&PL文件
-        :param pending_file: 待处理文件
-        :param pending_sheet_name: 待处理文件Sheet名
-        :param write_sheetname: 写入Excel文件Sheet名
+        :param pending_file: 待处理采购CI&PL文件
+        :param ci00_writer_datasource: CI00 Sheet数据源
+        :param pl10_writer_datasource: PL10 Sheet数据源
+        :return:
         """
-        # 读取待处理excel sheet获得待写入文件数据源
-        writer_datasource = cls._read_pending_file(pending_file, pending_sheet_name)
-
-        # 加载要写入的Excel文件Worksheet对象
         template_file = str(pending_file.brand_subcategory_path / pending_file.sales_cipl_template_name)
-        workbook, worksheet = Utils.load_worksheet(template_file, write_sheetname)
-
-        # 写入Excel Worksheet
+        workbook = load_workbook(template_file)
         with ServiceLocator \
                 .get_iteration_scope() \
-                .enter((Workbook, workbook),
-                       (Worksheet, worksheet),
-                       (PendingFileModel, pending_file),
-                       (WriterDataSource, writer_datasource)):
-            with ServiceLocator.getservice(Parser) as parser_write:
-                parser_write.parse(ParseType.WRITE, WriteParseResult)
+                .enter((Workbook, workbook), (PendingFileModel, pending_file)):
+            # 写 [货代 Invoice,货代 Packing] Sheet
+            cls._write_sales_clearance_file_sheet(workbook, ci00_writer_datasource, "货代 Invoice")
+            cls._write_sales_clearance_file_sheet(workbook, pl10_writer_datasource, "货代 Packing")
 
-                # 写入销售清关CI&PL文件
-                write_file = str(pending_file.sales_clearance_path / "my.xlsx")
-                parser_write.save(write_file)
+            # 保存
+            write_file = str(pending_file.sales_clearance_path / "my.xlsx")
+            workbook.save(write_file)
+            workbook.close()
+
+    @classmethod
+    def _write_sales_clearance_file_sheet(
+            cls,
+            workbook: Workbook,
+            writer_datasource: WriterDataSource,
+            sheet_name: str) -> WriteParseResult:
+        """
+        写销售清关CI&PL文件Sheet
+        :param writer_datasource: Sheet数据源
+        :param sheet_name: Sheet名称
+        :return: 写Sheet结果
+        """
+        ServiceLocator \
+            .get_iteration_scope() \
+            .enter((Worksheet, workbook[sheet_name]), (WriterDataSource, writer_datasource))
+        return ServiceLocator.getservice(Parser).parse(ParseType.WRITE, WriteParseResult)
 
     @staticmethod
     def _read_pending_file(pending_file: PendingFileModel, sheet_name: str) -> WriterDataSource:
@@ -101,4 +117,7 @@ class EgytpoppoSalesclearanceGenerator:
                 with ServiceLocator.getservice(Parser) as parser_read:
                     result_type = PL10ReadParseResult if sheet_name == "PL10" else CI00ReadParseResult
                     parse_result = parser_read.parse(ParseType.READ, result_type)
-                    return WriterDataSource(pl10_data=parse_result) if sheet_name == "PL10" else WriterDataSource(ci00_data=parse_result)
+                    if sheet_name == "PL10":
+                        return WriterDataSource(pl10_data=parse_result)
+                    else:
+                        return WriterDataSource(ci00_data=parse_result)
