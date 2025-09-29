@@ -1,6 +1,8 @@
 from typing import Dict, Any, TypeVar, Type
 
-from openpyxl.reader.excel import load_workbook
+from injector import inject
+from openpyxl.workbook import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 from excel.core.dispatcher import Dispatcher
 from excel.core.models.parse_result import SheetParseResult
@@ -13,26 +15,22 @@ class Parser:
     """
     TParseResult = TypeVar("TParseResult", bound=SheetParseResult)
 
-    def __init__(self, filename: str, sheet_name: str):
+    @inject
+    def __init__(self, workbook: Workbook, worksheet: Worksheet):
         """
         初始化Excel解析器
-        :param filename: 文件名
-        :param sheet_name: sheet名
+        :param workbook: Excel Workbook
+        :param worksheet: Excel Worksheet
         """
-        workbook = load_workbook(filename)
-        if sheet_name not in workbook:
-            raise ValueError(f"Sheet [{filename} - {sheet_name}] 不存在")
-
-        self.filename = filename
-        self.workbook = workbook
-        self.sheet = workbook[sheet_name]
+        self._workbook = workbook
+        self._worksheet = worksheet
 
     def save(self, filename: str):
         """
         保存Workbook
         :param filename: 文件名
         """
-        self.workbook.save(filename)
+        self._workbook.save(filename)
 
     def parse(self, type: ParseType, result_type: Type[TParseResult]) -> TParseResult:
         """
@@ -43,19 +41,19 @@ class Parser:
 
         # 循环整个Sheet
         current_row_index = 1
-        while current_row_index <= self.sheet.max_row:
+        while current_row_index <= self._worksheet.max_row:
             next_row_index = current_row_index + 1
 
             # 处理当前行所有单元格内容
-            for cell in self.sheet[current_row_index]:
+            for cell in self._worksheet[current_row_index]:
                 # 单元格有内容才处理
                 if cell.value is not None:
-                    value = Utils.get_cell_value(self.sheet, cell)
+                    value = Utils.get_cell_value(self._worksheet, cell)
                     handler = Dispatcher.get_handler(f"{type}{value}")
 
                     # 需要处理单元格内容时才处理
                     if handler:
-                        handle_result = handler(self.sheet, cell)
+                        handle_result = handler(cell)
                         Utils.merge_parse_result(final_result, handle_result.result)
                         if handle_result.next_row_index > current_row_index:
                             next_row_index = handle_result.next_row_index
@@ -78,5 +76,5 @@ class Parser:
         """
         支持上下文管理
         """
-        if self.workbook:
-            self.workbook.close()
+        if self._workbook:
+            self._workbook.close()

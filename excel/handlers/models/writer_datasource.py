@@ -40,7 +40,7 @@ class WriterDataSource:
     def get_common_data_source(self) -> Union[CI00ReadParseResult, PL10ReadParseResult]:
         if self._ci00_data_source:
             return self._ci00_data_source
-        elif cls._pl10_data_source:
+        elif self._pl10_data_source:
             return self._pl10_data_source
         else:
             raise ValueError("没有任何数据源可用")

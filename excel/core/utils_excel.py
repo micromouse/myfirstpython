@@ -1,5 +1,6 @@
 from contextlib import contextmanager
-from typing import List, Callable
+from pathlib import Path
+from typing import List, Callable, Tuple
 
 from openpyxl import load_workbook
 from openpyxl.cell.cell import Cell
@@ -27,6 +28,24 @@ class UtilsExcel:
             yield workbook
         finally:
             workbook.close()
+
+    @staticmethod
+    def load_worksheet(file: str, sheet_name: str, **kwargs) -> Tuple[Workbook, Worksheet]:
+        """
+        载入Excel Worksheet
+        :param file: Excel文件名
+        :param sheet_name: Worksheet名
+        :param kwargs: 参数集合
+        :return: [Workbok, Worksheet]元组
+        """
+        if not Path.exists(Path(file)):
+            raise FileNotFoundError(f"文件[{file}]不存在")
+
+        workbook = load_workbook(file, **kwargs)
+        if sheet_name not in [sheet.title for sheet in workbook.worksheets]:
+            raise KeyError(f"文件[{file}]中不存在 [{sheet_name}] Excel Worksheet")
+
+        return workbook, workbook[sheet_name]
 
     @staticmethod
     def get_cell_value(sheet: Worksheet, cell: Cell, default: str = "") -> str:

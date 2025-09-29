@@ -65,3 +65,4 @@ class WriteParseResult(SheetParseResult):
     """
     写入Excel Sheet解析结果
     """
+    invoice_number: str

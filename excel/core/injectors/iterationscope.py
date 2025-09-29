@@ -16,9 +16,7 @@ class IterationScope(Scope):
     """
 
     # 每个线程/协程都有自己的作用域上下文
-    _context: ContextVar[Optional[Dict[Type, InstanceProvider]]] = ContextVar(
-        "iteration_scope_context", default=None
-    )
+    _context: ContextVar[Optional[Dict[Type, InstanceProvider]]] = ContextVar("iteration_scope_context", default={})
 
     def __init__(self, injector: Injector):
         """
@@ -29,14 +27,14 @@ class IterationScope(Scope):
 
     def enter(self, *bindings: Tuple[Type, Any]) -> "IterationScope":
         """
-        进入一个新的作用域，绑定指定类型与实例。
+        绑定指定类型与实例到当前作用域上下文
         :param bindings: 类型与实例的元组，例如 (PendingFileModel, pending_file)
         :return: self
         """
-        ctx = {}
-        for typ, inst in bindings:
-            ctx[typ] = InstanceProvider(inst)
+        ctx = self._context.get()
+        ctx.update({typ: InstanceProvider(inst) for typ, inst in bindings})
         self._context.set(ctx)
+
         return self
 
     def __enter__(self) -> "IterationScope":
@@ -50,7 +48,7 @@ class IterationScope(Scope):
         """
         退出当前作用域，清空上下文。
         """
-        self._context = None
+        self._context.set({})
 
     def get(self, key: Type, provider) -> object:
         """

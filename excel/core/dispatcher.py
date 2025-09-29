@@ -2,16 +2,15 @@ import inspect
 from typing import Callable, Dict
 
 from openpyxl.cell.cell import Cell
-from openpyxl.worksheet.worksheet import Worksheet
 
-from excel.core.models.parse_result import CellparseResult
 from excel.core.injectors.servicelocator import ServiceLocator
+from excel.core.models.parse_result import CellparseResult
 
 class Dispatcher:
     """
     分发器,自动注册关键字处理器函数
     """
-    _handlers: Dict[str, Callable[[Worksheet, Cell], CellparseResult]] = {}
+    _handlers: Dict[str, Callable[[Cell], CellparseResult]] = {}
 
     @classmethod
     def regiter_handler(cls, keyword: str, owner_cls: type = None) -> Callable:
@@ -22,7 +21,7 @@ class Dispatcher:
         :return: 处理器函数装饰器
         """
 
-        def decorator(func: Callable[[Worksheet, Cell], CellparseResult]):
+        def decorator(func: Callable[[Cell], CellparseResult]):
             """
             装饰器:把处理器函数分发到分发表
             :param func: 处理器函数
@@ -33,9 +32,9 @@ class Dispatcher:
 
             parameters = list(inspect.signature(func).parameters.keys())
             if parameters[0] == "cls":
-                cls._handlers[keyword] = lambda sheet, cell: func.__func__(owner_cls, sheet, cell)
+                cls._handlers[keyword] = lambda cell: func.__func__(owner_cls, cell)
             elif parameters[0] == "self":
-                cls._handlers[keyword] = lambda sheet, cell: func.__get__(ServiceLocator.getservice(owner_cls))(sheet, cell)
+                cls._handlers[keyword] = lambda cell: func.__get__(ServiceLocator.getservice(owner_cls))(cell)
             else:
                 cls._handlers[keyword] = func
 
@@ -67,7 +66,7 @@ class Dispatcher:
         return decorator
 
     @classmethod
-    def get_handler(cls, keyword: str) -> Callable[[Worksheet, Cell], CellparseResult] | None:
+    def get_handler(cls, keyword: str) -> Callable[[Cell], CellparseResult] | None:
         """
         获得指定关键字的处理器函数
         :param keyword: 关键字
