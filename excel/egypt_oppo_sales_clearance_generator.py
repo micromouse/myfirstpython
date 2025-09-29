@@ -13,7 +13,9 @@ from excel.handlers.models.pending_file_model import PendingFileModel
 from excel.handlers.models.writer_datasource import WriterDataSource
 from excel.handlers.services.battery_brand_service import BatteryBrandService
 from excel.handlers.services.file_scan_service import FileScanService
+from excel.handlers.services.hscode_service import HScodeService
 from excel.handlers.services.registered_invoice_number_service import RegisteredInvoicNumberService
+from excel.handlers.services.sales_price_table_service import SalespriceTableService
 
 class EgytpoppoSalesclearanceGenerator:
     """
@@ -54,6 +56,7 @@ class EgytpoppoSalesclearanceGenerator:
         _ = ServiceLocator.getservice(BatteryBrandService)
         _ = ServiceLocator.getservice(RegisteredInvoicNumberService)
         _ = ServiceLocator.getservice(FileScanService)
+        _ = ServiceLocator.getservice(HScodeService)
 
     @classmethod
     def _write_sales_clearance_file(
@@ -68,18 +71,18 @@ class EgytpoppoSalesclearanceGenerator:
         :param pl10_writer_datasource: PL10 Sheet数据源
         :return:
         """
-        template_file = str(pending_file.brand_subcategory_path / pending_file.sales_cipl_template_name)
+        template_file = pending_file.get_sales_cipl_template_file_path()
         workbook = load_workbook(template_file)
         with ServiceLocator \
                 .get_iteration_scope() \
                 .enter((Workbook, workbook), (PendingFileModel, pending_file)):
             # 写 [货代 Invoice,货代 Packing] Sheet
-            cls._write_sales_clearance_file_sheet(workbook, ci00_writer_datasource, "货代 Invoice")
+            invoice_write_parse_result = cls._write_sales_clearance_file_sheet(workbook, ci00_writer_datasource, "货代 Invoice")
             cls._write_sales_clearance_file_sheet(workbook, pl10_writer_datasource, "货代 Packing")
 
             # 保存
-            write_file = str(pending_file.sales_clearance_path / "my.xlsx")
-            workbook.save(write_file)
+            write_file_path = pending_file.get_sales_clearance_file_path(invoice_write_parse_result["invoice_number"])
+            workbook.save(write_file_path)
             workbook.close()
 
     @classmethod
@@ -107,7 +110,7 @@ class EgytpoppoSalesclearanceGenerator:
         :param sheet_name: Sheet名称
         :return: 写入器数据源
         """
-        workbook, worksheet = Utils.load_worksheet(str(pending_file.pending_file_path), sheet_name)
+        workbook, worksheet = Utils.load_worksheet(str(pending_file.pending_file_path), sheet_name=sheet_name)
         with ServiceLocator \
                 .get_iteration_scope() \
                 .enter((Workbook, workbook),

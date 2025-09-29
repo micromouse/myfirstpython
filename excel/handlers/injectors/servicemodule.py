@@ -12,7 +12,9 @@ from excel.handlers.reader.purchase_detail_handlers import ReadPurchaseDetailHan
 from excel.handlers.reader.total_handlers import ReadTotalHandlers
 from excel.handlers.services.battery_brand_service import BatteryBrandService
 from excel.handlers.services.file_scan_service import FileScanService
+from excel.handlers.services.hscode_service import HScodeService
 from excel.handlers.services.registered_invoice_number_service import RegisteredInvoicNumberService
+from excel.handlers.services.sales_price_table_service import SalespriceTableService
 from excel.handlers.writer.invoice_date_handlers import WriteInvoicedateHandlers
 from excel.handlers.writer.invoice_number_handlers import WriteInvoicenumberHandlers
 from excel.handlers.writer.purchase_detail_handlers import WritePurchasedetailHandlers
@@ -40,6 +42,8 @@ class ServiceModule(injector.Module):
         binder.bind(BatteryBrandService, to=BatteryBrandService, scope=SingletonScope)
         binder.bind(FileScanService, to=FileScanService, scope=SingletonScope)
         binder.bind(RegisteredInvoicNumberService, to=RegisteredInvoicNumberService, scope=SingletonScope)
+        binder.bind(HScodeService, to=HScodeService, scope=SingletonScope)
+        binder.bind(SalespriceTableService, to=SalespriceTableService, scope=IterationScope)
 
         # 解析Excel
         binder.bind(Parser, to=Parser, scope=NoScope)

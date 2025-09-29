@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 from pathlib import Path
-from typing import List, Callable, Tuple
+from typing import List, Callable, Tuple, Optional, Union
 
 from openpyxl import load_workbook
 from openpyxl.cell.cell import Cell
@@ -16,7 +16,7 @@ class UtilsExcel:
 
     @staticmethod
     @contextmanager
-    def open_workbook(file: str, **kwargs):
+    def open_workbook(file: Union[str, Path], **kwargs):
         """
         支持资源释放的打开Excel Workbook
         :param file: 文件名
@@ -30,11 +30,17 @@ class UtilsExcel:
             workbook.close()
 
     @staticmethod
-    def load_worksheet(file: str, sheet_name: str, **kwargs) -> Tuple[Workbook, Worksheet]:
+    def load_worksheet(
+            file: str,
+            sheet_name: Optional[str] = None,
+            sheet_index: Optional[int] = None,
+            **kwargs
+    ) -> Tuple[Workbook, Worksheet]:
         """
         载入Excel Worksheet
         :param file: Excel文件名
-        :param sheet_name: Worksheet名
+        :param sheet_name: (可选)Worksheet名
+        :param sheet_index: (可选)Worksheet索引
         :param kwargs: 参数集合
         :return: [Workbok, Worksheet]元组
         """
@@ -42,10 +48,21 @@ class UtilsExcel:
             raise FileNotFoundError(f"文件[{file}]不存在")
 
         workbook = load_workbook(file, **kwargs)
-        if sheet_name not in [sheet.title for sheet in workbook.worksheets]:
-            raise KeyError(f"文件[{file}]中不存在 [{sheet_name}] Excel Worksheet")
 
-        return workbook, workbook[sheet_name]
+        # 传递了Sheet名
+        if sheet_name:
+            if sheet_name not in [sheet.title for sheet in workbook.worksheets]:
+                raise KeyError(f"文件[{file}]中不存在 [{sheet_name}] Excel Worksheet")
+            return workbook, workbook[sheet_name]
+
+        # 传递了Sheet索引
+        if sheet_index:
+            if sheet_index < 0 or sheet_index >= len(workbook.worksheets):
+                raise IndexError(f"文件[{file}]中不存在索引为 [{sheet_index}] 的工作表")
+            return workbook, workbook.worksheets[sheet_index]
+
+        # sheet_name和sheet_index都没有传递
+        raise ValueError("必须提供sheet_name或sheet_index中的一个")
 
     @staticmethod
     def get_cell_value(sheet: Worksheet, cell: Cell, default: str = "") -> str:
