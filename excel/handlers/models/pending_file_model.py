@@ -4,7 +4,7 @@ from pathlib import Path
 @dataclass
 class PendingFileModel:
     """
-    待处理文件模型
+    待处理文件模型(OPPO,RMG)
     """
     factory_name: str
     """

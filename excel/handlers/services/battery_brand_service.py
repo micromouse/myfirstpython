@@ -29,6 +29,7 @@ class BatteryBrandService:
         :param material_code: 物料编码
         :return: 电池品牌信息模型
         """
+        material_code = material_code.strip()
         if material_code not in self._battery_brand_models:
             raise IndexError(f"电池品牌集合中没有当前物料编码[{material_code}]信息")
 

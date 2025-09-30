@@ -24,6 +24,7 @@ class CI00PurchaseDetail(PurchaseDetail):
     unit_price: Decimal
     amount_usd: Decimal
     origin_country: str
+    remark: str
     pass
 
 class PL10PurchaseDetail(PurchaseDetail):

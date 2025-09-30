@@ -72,7 +72,8 @@ class ReadPurchaseDetailHandlers(ReadhandleBase):
             "quantity": int(Utils.get_cell_value(self._worksheet, row[9], "0").replace(",", "")),
             "unit_price": Decimal(Utils.get_cell_value(self._worksheet, row[10], "0").replace(",", "")),
             "amount_usd": Decimal(Utils.get_cell_value(self._worksheet, row[11], "0").replace(",", "")),
-            "origin_country": Utils.get_cell_value(self._worksheet, row[12])
+            "origin_country": Utils.get_cell_value(self._worksheet, row[12]),
+            "remark": Utils.get_cell_value(self._worksheet, row[13])
         }
         return purchase_detail
 

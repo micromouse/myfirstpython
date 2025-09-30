@@ -1,3 +1,5 @@
+from typing import List
+
 from injector import inject
 from openpyxl.cell.cell import Cell
 from openpyxl.workbook import Workbook
@@ -5,7 +7,12 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from excel.core.dispatcher import Dispatcher
 from excel.core.models.parse_result import CellparseResult, CI00ReadParseResult
+from excel.core.models.purchase_detail import CI00PurchaseDetail
+from excel.handlers.models.pending_file_model import PendingFileModel
 from excel.handlers.models.writer_datasource import WriterDataSource
+from excel.handlers.services.authenticationed_phone_model_service import AuthenticationedPhonemodelService
+from excel.handlers.services.battery_brand_service import BatteryBrandService
+from excel.handlers.services.hscode_service import HScodeService
 from excel.handlers.writer.purchase_detail_handlers import WritePurchasedetailHandlers
 
 @Dispatcher.register_handlers
@@ -15,14 +22,27 @@ class WritePurchasedetailInvoiceHandlers(WritePurchasedetailHandlers):
     """
 
     @inject
-    def __init__(self, workbook: Workbook, worksheet: Worksheet, datasource: WriterDataSource):
+    def __init__(
+            self,
+            workbook: Workbook,
+            worksheet: Worksheet,
+            datasource: WriterDataSource,
+            pending_file_model: PendingFileModel,
+            hscode_service: HScodeService,
+            battery_brand_service: BatteryBrandService,
+            authentication_phonemodel_service: AuthenticationedPhonemodelService):
         """
         初始化E[货代 Invoice]采购明细处理器
         :param workbook: 要写入的Workbook
         :param worksheet: 要写入的Worksheet
         :param datasource: Excel写入器数据源
+        :param pending_file_model: 待处理文件模型
         """
         super().__init__(workbook, worksheet, datasource)
+        self._pending_file_model = pending_file_model
+        self._hscode_service = hscode_service
+        self._battery_brand_service = battery_brand_service
+        self._authentication_phonemodel_service = authentication_phonemodel_service
 
     @Dispatcher.keyword("WRITE_HS")
     def handle_invoice_purchase_detail(self, cell: Cell) -> CellparseResult:
@@ -32,4 +52,29 @@ class WritePurchasedetailInvoiceHandlers(WritePurchasedetailHandlers):
         purchase_details = self._datasource.get_data_source(CI00ReadParseResult)["purchase_details"]
         self._insert_blank_rows(cell.row + 2, len(purchase_details))
 
-        return CellparseResult()
+        # 插入采购明细
+        self._authentication_phonemodel_service.to_first(self._pending_file_model.brand_category)
+        self._insert_purchase_details(cell, purchase_details)
+
+        return CellparseResult(next_row_index=cell.row + 2 + len(purchase_details))
+
+    def _insert_purchase_details(self, cell: Cell, purchase_details: List[CI00PurchaseDetail]):
+        """
+        插入电池 [货代Invoice] 采购明细
+        [hs_code, model, description of goods, quantity, unit price, amount usd, (oppo电池:brand, oppo非电池:origin_country, rmg:remark)]
+        """
+        for index, purchase_detail in enumerate(purchase_details):
+            self._worksheet.cell(cell.row + 2 + index, 1).value = self._hscode_service.get_hscode(purchase_detail["material_code"])
+            self._worksheet.cell(cell.row + 2 + index, 3).value = purchase_detail["description"]
+            self._worksheet.cell(cell.row + 2 + index, 5).value = purchase_detail["quantity"]
+            self._worksheet.cell(cell.row + 2 + index, 6).value = purchase_detail["unit_price"]
+            self._worksheet.cell(cell.row + 2 + index, 7).value = purchase_detail["amount_usd"]
+            if self._pending_file_model.brand_subcategory == "电池":
+                self._worksheet.cell(cell.row + 2 + index, 2).value = self._battery_brand_service.get_battry_brand(purchase_detail["material_code"]).model
+                self._worksheet.cell(cell.row + 2 + index, 8).value = self._battery_brand_service.get_battry_brand(purchase_detail["material_code"]).brand
+            elif self._pending_file_model.factory_name == "RMG":
+                self._worksheet.cell(cell.row + 2 + index, 2).value = self._authentication_phonemodel_service.get_next_factorycode(self._pending_file_model.brand_category)
+                self._worksheet.cell(cell.row + 2 + index, 8).value = purchase_detail["remark"]
+            else:
+                self._worksheet.cell(cell.row + 2 + index, 2).value = self._authentication_phonemodel_service.get_next_factorycode(self._pending_file_model.brand_category)
+                self._worksheet.cell(cell.row + 2 + index, 8).value = purchase_detail["origin_country"]

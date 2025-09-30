@@ -10,6 +10,7 @@ from excel.handlers.models.writer_datasource import WriterDataSource
 from excel.handlers.reader.invoice_date_handlers import ReadInvoicedateHandlers
 from excel.handlers.reader.purchase_detail_handlers import ReadPurchaseDetailHandlers
 from excel.handlers.reader.total_handlers import ReadTotalHandlers
+from excel.handlers.services.authenticationed_phone_model_service import AuthenticationedPhonemodelService
 from excel.handlers.services.battery_brand_service import BatteryBrandService
 from excel.handlers.services.file_scan_service import FileScanService
 from excel.handlers.services.hscode_service import HScodeService
@@ -43,6 +44,7 @@ class ServiceModule(injector.Module):
         binder.bind(FileScanService, to=FileScanService, scope=SingletonScope)
         binder.bind(RegisteredInvoicNumberService, to=RegisteredInvoicNumberService, scope=SingletonScope)
         binder.bind(HScodeService, to=HScodeService, scope=SingletonScope)
+        binder.bind(AuthenticationedPhonemodelService, to=AuthenticationedPhonemodelService, scope=SingletonScope)
         binder.bind(SalespriceTableService, to=SalespriceTableService, scope=IterationScope)
 
         # 解析Excel

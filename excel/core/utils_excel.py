@@ -56,7 +56,7 @@ class UtilsExcel:
             return workbook, workbook[sheet_name]
 
         # 传递了Sheet索引
-        if sheet_index:
+        if sheet_index > -1:
             if sheet_index < 0 or sheet_index >= len(workbook.worksheets):
                 raise IndexError(f"文件[{file}]中不存在索引为 [{sheet_index}] 的工作表")
             return workbook, workbook.worksheets[sheet_index]

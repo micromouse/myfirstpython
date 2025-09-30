@@ -11,6 +11,7 @@ from excel.core.utils import Utils
 from excel.handlers.injectors.servicemodule import ServiceModule
 from excel.handlers.models.pending_file_model import PendingFileModel
 from excel.handlers.models.writer_datasource import WriterDataSource
+from excel.handlers.services.authenticationed_phone_model_service import AuthenticationedPhonemodelService
 from excel.handlers.services.battery_brand_service import BatteryBrandService
 from excel.handlers.services.file_scan_service import FileScanService
 from excel.handlers.services.hscode_service import HScodeService
@@ -57,6 +58,7 @@ class EgytpoppoSalesclearanceGenerator:
         _ = ServiceLocator.getservice(RegisteredInvoicNumberService)
         _ = ServiceLocator.getservice(FileScanService)
         _ = ServiceLocator.getservice(HScodeService)
+        _ = ServiceLocator.getservice(AuthenticationedPhonemodelService)
 
     @classmethod
     def _write_sales_clearance_file(
