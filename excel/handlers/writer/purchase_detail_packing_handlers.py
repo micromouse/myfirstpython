@@ -31,5 +31,5 @@ class WritePurchasedetailPackingHandlers(WritePurchasedetailHandlers, WriteHandl
         处理[货代Packing] Sheet采购明细
         """
         purchase_details = self._datasource.get_data_source(PL10ReadParseResult)["purchase_details"]
-        self._insert_blank_rows(cell.row + 1, len(purchase_details))
+        self._insert_blank_rows(self._worksheet, cell.row + 1, len(purchase_details))
         return CellparseResult()

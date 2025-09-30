@@ -18,17 +18,18 @@ class WritePurchasedetailHandlers(WriteHandlerBase):
         """
         super().__init__(workbook, worksheet, datasource)
 
-    def _insert_blank_rows(self, index: int, count: int):
+    def _insert_blank_rows(self, worksheet: Worksheet, index: int, count: int):
         """
         插入空白行
+        :param worksheet: Excel Worksheet
         :param index: 插入行索引(在索引位置前插入空白行)
         :param count: 行数
         """
-        self._worksheet.delete_rows(index, 1)
-        self._worksheet.insert_rows(index, count)
+        worksheet.delete_rows(index, 1)
+        worksheet.insert_rows(index, count)
 
         # 重置新插入行的行高
         for row_index in range(index, index + count + 5):
-            self._worksheet.row_dimensions[row_index].height = None
+            worksheet.row_dimensions[row_index].height = None
 
         return self
