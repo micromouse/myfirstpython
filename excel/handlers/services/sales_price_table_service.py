@@ -47,5 +47,3 @@ class SalespriceTableService:
                         # 未能获得计算列的值
                         price = Decimal(str(row[5].value).strip())
                         self._sales_prices[self._pending_file_model.brand_subcategory_path][material_code] = price
-
-        print("")
