@@ -25,11 +25,22 @@ class WritePurchasedetailHandlers(WriteHandlerBase):
         :param index: 插入行索引(在索引位置前插入空白行)
         :param count: 行数
         """
+        # 先取消范围内的所有合并单元格
+        start_row = index
+        end_row = index + 9
+        merged_to_remove = [
+            merged_range for merged_range in worksheet.merged_cells.ranges
+            if not (merged_range.max_row < start_row or merged_range.min_row > end_row)
+        ]
+        for merged_range in merged_to_remove:
+            worksheet.unmerge_cells(str(merged_range))
+
+        # 插入空白行
         worksheet.delete_rows(index, 1)
         worksheet.insert_rows(index, count)
 
         # 重置新插入行的行高
-        for row_index in range(index, index + count + 5):
+        for row_index in range(index, index + count + 9):
             worksheet.row_dimensions[row_index].height = None
 
         return self

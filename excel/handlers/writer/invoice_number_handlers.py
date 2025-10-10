@@ -41,6 +41,7 @@ class WriteInvoicenumberHandlers(WriteHandlerBase):
         处理发票号(货代Invoice和With material code Sheet用)
         """
         self._worksheet.cell(cell.row, cell.column + 2).value = self._save_and_get_invoice_number()
+        self._workbook["With material code"].cell(cell.row, cell.column + 2).value = self._save_and_get_invoice_number()
         write_parse_result = dict(WriteParseResult(invoice_number=self._invoice_number))
         return CellparseResult(write_parse_result, next_row_index=cell.row)
 

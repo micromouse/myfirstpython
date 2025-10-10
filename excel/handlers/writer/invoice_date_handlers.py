@@ -17,4 +17,6 @@ class WriteInvoicedateHandlers(WriteHandlerBase):
         处理发票日期
         """
         self._worksheet.cell(cell.row, cell.column + 1).value = self._datasource.get_common_data_source()["invoice_date"]
+        if self._worksheet.title == "货代 Invoice":
+            self._workbook["With material code"].cell(cell.row, cell.column + 1).value = self._datasource.get_common_data_source()["invoice_date"]
         return CellparseResult()

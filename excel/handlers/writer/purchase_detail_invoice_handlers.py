@@ -57,7 +57,7 @@ class WritePurchasedetailInvoiceHandlers(WritePurchasedetailHandlers):
         self._insert_purchase_details(self._worksheet, cell, purchase_details)
         self._insert_purchase_details(self._workbook["With material code"], cell, purchase_details)
 
-        return CellparseResult(next_row_index=cell.row + 2 + len(purchase_details))
+        return CellparseResult(next_row_index=cell.row + 2 + len(purchase_details) + 1)
 
     def _insert_purchase_details(self, worksheet: Worksheet, cell: Cell, purchase_details: List[CI00PurchaseDetail]):
         """
@@ -86,5 +86,16 @@ class WritePurchasedetailInvoiceHandlers(WritePurchasedetailHandlers):
                 worksheet.cell(cell.row + 2 + index, 2).value = self._authentication_phonemodel_service.get_next_factorycode(self._pending_file_model.brand_category)
                 worksheet.cell(cell.row + 2 + index, 8).value = purchase_detail["origin_country"]
 
-            # [With material code] Sheedt [Material Code] 列
-            worksheet.cell(cell.row + 2 + index, 9).value = purchase_detail["material_code"]
+            # [With material code] Sheet [Material Code] 列
+            if worksheet.title == "With material code":
+                worksheet.cell(cell.row + 2 + index, 9).value = purchase_detail["material_code"]
+
+        # 写Total值
+        self._write_total(worksheet, worksheet.cell(cell.row + 2 + len(purchase_details), 4))
+
+    def _write_total(self, worksheet: Worksheet, cell: Cell):
+        """
+        写Total值
+        """
+        worksheet.cell(cell.row, cell.column + 1, self._datasource.get_data_source(CI00ReadParseResult)["total_quantity"])
+        worksheet.cell(cell.row, cell.column + 3, self._datasource.get_data_source(CI00ReadParseResult)["total_amount"])
