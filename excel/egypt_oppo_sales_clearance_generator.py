@@ -34,13 +34,14 @@ class EgytpoppoSalesclearanceGenerator:
 
         # 循环处理所有采购CI&PL文件以生成响应的销售清关CI&PL文件
         for pending_file in ServiceLocator.getservice(FileScanService).scan():
-            # 读 [采购CI&PL] Excel文件
-            ci00_writer_datasource = cls._read_pending_file(pending_file, "CI00")
-            cpl10_writer_datasource = cls._read_pending_file(pending_file, "PL10")
+            if pending_file.brand_subcategory == "散料大类：散料、常温胶水、治具、低耗、低温胶水":
+                # 读 [采购CI&PL] Excel文件
+                ci00_writer_datasource = cls._read_pending_file(pending_file, "CI00")
+                cpl10_writer_datasource = cls._read_pending_file(pending_file, "PL10")
 
-            # 写[货代 Invoice, 货代 Packing] Sheet
-            cls._write_sales_clearance_file(pending_file, ci00_writer_datasource, cpl10_writer_datasource)
-            break
+                # 写[货代 Invoice, 货代 Packing] Sheet
+                cls._write_sales_clearance_file(pending_file, ci00_writer_datasource, cpl10_writer_datasource)
+                break
 
     @staticmethod
     def _initial(root_folder: str):

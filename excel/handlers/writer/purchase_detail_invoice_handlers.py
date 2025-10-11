@@ -61,7 +61,7 @@ class WritePurchasedetailInvoiceHandlers(WritePurchasedetailHandlers):
 
     def _insert_purchase_details(self, worksheet: Worksheet, cell: Cell, purchase_details: List[CI00PurchaseDetail]):
         """
-        插入电池 [货代Invoice] 采购明细
+        插入 [货代 Invoice] 采购明细
         [hs_code, model, description of goods, quantity, unit price, amount usd, (oppo电池:brand, oppo非电池:origin_country, rmg:remark)]
         """
         # 已认证手机型号工厂编码从头开始

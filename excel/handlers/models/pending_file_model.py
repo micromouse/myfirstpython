@@ -8,7 +8,7 @@ class PendingFileModel:
     """
     factory_name: str
     """
-    工厂名称
+    工厂名称(OPPO,RMG)
     """
     brand_category: str
     """

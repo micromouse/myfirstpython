@@ -86,6 +86,6 @@ class ReadPurchaseDetailHandlers(ReadhandleBase):
             "material_code": Utils.get_cell_value(self._worksheet, row[13]),
             "description": Utils.get_cell_value(self._worksheet, row[4]),
             "total_quantity": int(Utils.get_cell_value(self._worksheet, row[8], "0").replace(",", "")),
-            "total_packages": int(Utils.get_cell_value(self._worksheet, row[11], "0").replace(",", ""))
+            "total_packages": int(row[11].value) if row[11].value else None
         }
         return purchase_detail

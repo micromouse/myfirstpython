@@ -32,4 +32,4 @@ class PL10PurchaseDetail(PurchaseDetail):
     PL10采购明细模型
     """
     total_quantity: int
-    total_packages: int
+    total_packages: int | None

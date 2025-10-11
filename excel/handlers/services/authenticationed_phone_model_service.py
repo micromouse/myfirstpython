@@ -39,6 +39,8 @@ class AuthenticationedPhonemodelService:
         else:
             raise RuntimeError(f"当前手机型号[{brand_category}]不是[OPPO,REALME]之一")
 
+        return self
+
     def get_next_factorycode(self, brand_category: str) -> str:
         """
         获得指定品牌类别下一个已认证手机型号工厂编码
@@ -47,16 +49,16 @@ class AuthenticationedPhonemodelService:
         """
         if brand_category.startswith(self.PHONEMODEL_OPPO):
             if self._oppo_factorycode_index + 1 >= len(self._factory_codes[self.PHONEMODEL_OPPO]):
-                self.to_first()
+                self.to_first(brand_category)
             AuthenticationedPhonemodelService._oppo_factorycode_index += 1
             return self._factory_codes[self.PHONEMODEL_OPPO][self._oppo_factorycode_index]
         elif brand_category.startswith(self.PHONEMODEL_REALME):
             if self._realme_factorycode_index + 1 >= len(self._factory_codes[self.PHONEMODEL_REALME]):
-                self.to_first()
+                self.to_first(brand_category)
             AuthenticationedPhonemodelService._realme_factorycode_index += 1
             return self._factory_codes[self.PHONEMODEL_REALME][self._realme_factorycode_index]
         else:
-            raise RuntimeError(f"当前手机型号[{self._pending_file_model.brand_category}]不是[OPPO,REALME]之一")
+            raise RuntimeError(f"当前手机型号[{brand_category}]不是[OPPO,REALME]之一")
 
     def _load_authenticationed_phonemodel_factorycodes(self):
         """
