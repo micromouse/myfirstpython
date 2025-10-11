@@ -1,3 +1,5 @@
+from typing import Callable
+
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
@@ -22,33 +24,35 @@ class EgytpoppoSalesclearanceGenerator:
     """
     埃及oppo销售清关文件生成器
     """
+    _root_folder: str
+    _handle_progress: Callable[[str], None]
 
     @classmethod
-    def generate(cls, root_folder: str):
+    def generate(cls):
         """
         生成[销售清关CI&PL]文件
-        :param root_folder: 要处理的清关文件根目录
+        :param func: 回到函数
         """
-        # 初始化运行环境
-        cls._initial(root_folder)
-
         # 循环处理所有采购CI&PL文件以生成响应的销售清关CI&PL文件
         for pending_file in ServiceLocator.getservice(FileScanService).scan():
-            if pending_file.brand_subcategory == "散料大类：散料、常温胶水、治具、低耗、低温胶水":
-                # 读 [采购CI&PL] Excel文件
-                ci00_writer_datasource = cls._read_pending_file(pending_file, "CI00")
-                cpl10_writer_datasource = cls._read_pending_file(pending_file, "PL10")
+            cls._handle_progress(f"正在处理[{pending_file.pending_file_path}]文件")
 
-                # 写[货代 Invoice, 货代 Packing] Sheet
-                cls._write_sales_clearance_file(pending_file, ci00_writer_datasource, cpl10_writer_datasource)
-                break
+            # 读 [采购CI&PL] Excel文件
+            ci00_writer_datasource = cls._read_pending_file(pending_file, "CI00")
+            cpl10_writer_datasource = cls._read_pending_file(pending_file, "PL10")
 
-    @staticmethod
-    def _initial(root_folder: str):
+            # 写[货代 Invoice, 货代 Packing] Sheet
+            cls._write_sales_clearance_file(pending_file, ci00_writer_datasource, cpl10_writer_datasource)
+            break
+
+    @classmethod
+    def initial(cls, root_folder: str) -> type["EgytpoppoSalesclearanceGenerator"]:
         """
         初始化运行环境
         :param root_folder: 要处理的清关文件根目录
         """
+        cls._root_folder = root_folder
+
         # 依赖注入
         ServiceLocator \
             .initial(ServiceModule()) \
@@ -60,6 +64,17 @@ class EgytpoppoSalesclearanceGenerator:
         _ = ServiceLocator.getservice(FileScanService)
         _ = ServiceLocator.getservice(HScodeService)
         _ = ServiceLocator.getservice(AuthenticationedPhonemodelService)
+
+        return cls
+
+    @classmethod
+    def set_handle_progress(cls, func: Callable[[str], None]) -> type["EgytpoppoSalesclearanceGenerator"]:
+        """
+        设置处理进度回调函数
+        :param func: 处理进度回调函数
+        """
+        cls._handle_progress = func
+        return cls
 
     @classmethod
     def _write_sales_clearance_file(
@@ -119,11 +134,10 @@ class EgytpoppoSalesclearanceGenerator:
                 .enter((Workbook, workbook),
                        (Worksheet, worksheet),
                        (PendingFileModel, pending_file)):
-            with ServiceLocator.getservice(Parser) as parser_write:
-                with ServiceLocator.getservice(Parser) as parser_read:
-                    result_type = PL10ReadParseResult if sheet_name == "PL10" else CI00ReadParseResult
-                    parse_result = parser_read.parse(ParseType.READ, result_type)
-                    if sheet_name == "PL10":
-                        return WriterDataSource(pl10_data=parse_result)
-                    else:
-                        return WriterDataSource(ci00_data=parse_result)
+            with ServiceLocator.getservice(Parser) as parser_read:
+                result_type = PL10ReadParseResult if sheet_name == "PL10" else CI00ReadParseResult
+                parse_result = parser_read.parse(ParseType.READ, result_type)
+                if sheet_name == "PL10":
+                    return WriterDataSource(pl10_data=parse_result)
+                else:
+                    return WriterDataSource(ci00_data=parse_result)

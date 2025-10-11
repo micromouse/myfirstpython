@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Self
 
 from openpyxl.worksheet.worksheet import Worksheet
 
@@ -19,35 +19,35 @@ class FluentExcelWriter:
         self._sheet_name = ""
         self._saveas_file = ""
 
-    def set_file(self, file: str) -> "FluentExcelWriter":
+    def set_file(self, file: str) -> Self:
         """
         设置文件名
         """
         self._file = file
         return self
 
-    def set_sheet_index(self, sheet_index: int) -> "FluentExcelWriter":
+    def set_sheet_index(self, sheet_index: int) -> Self:
         """
         设置Sheet Index
         """
         self._sheet_index = sheet_index
         return self
 
-    def set_sheet_name(self, sheet_name: str) -> "FluentExcelWriter":
+    def set_sheet_name(self, sheet_name: str) -> Self:
         """
         设置Sheet名称
         """
         self._sheet_name = sheet_name
         return self
 
-    def set_saveas_file(self, saveas_file: str) -> "FluentExcelWriter":
+    def set_saveas_file(self, saveas_file: str) -> Self:
         """
         设置另存为文件名
         """
         self._saveas_file = saveas_file
         return self
 
-    def init(self, file: str, sheet_index: int = 0, sheet_name: str = "", saveas_file: str = "") -> "FluentExcelWriter":
+    def init(self, file: str, sheet_index: int = 0, sheet_name: str = "", saveas_file: str = "") -> Self:
         """
         一次初始化文件、sheet index、sheet名称、另存为文件名
         """

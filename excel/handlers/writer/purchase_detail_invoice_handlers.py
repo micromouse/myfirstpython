@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import List
 
 from injector import inject
@@ -73,7 +74,9 @@ class WritePurchasedetailInvoiceHandlers(WritePurchasedetailHandlers):
             worksheet.cell(cell.row + 2 + index, 3).value = purchase_detail["description"]
             worksheet.cell(cell.row + 2 + index, 5).value = purchase_detail["quantity"]
             worksheet.cell(cell.row + 2 + index, 6).value = purchase_detail["unit_price"]
-            worksheet.cell(cell.row + 2 + index, 7).value = purchase_detail["amount_usd"]
+            worksheet.cell(cell.row + 2 + index, 6).number_format = self._get_cell_formatter(purchase_detail["unit_price"])
+            worksheet.cell(cell.row + 2 + index, 7).value = round(purchase_detail["amount_usd"], 2)
+            worksheet.cell(cell.row + 2 + index, 7).number_format = "0.00"
 
             # Model列、第八列[brand/remark/country of origin]
             if self._pending_file_model.brand_subcategory == "电池":
@@ -92,6 +95,23 @@ class WritePurchasedetailInvoiceHandlers(WritePurchasedetailHandlers):
 
         # 写Total值
         self._write_total(worksheet, worksheet.cell(cell.row + 2 + len(purchase_details), 4))
+
+    @staticmethod
+    def _get_cell_formatter(num: Decimal, min_decimals=2) -> str:
+        """
+        获得Excel单元格数值格式化器
+        :param num: 要格式化的数值
+        :min_decimals: 最小保留小数位数(最小两位)
+        :return: 格式化器
+        """
+        decimals = min_decimals
+
+        # 对于小于1的小数,循环所有位数直到非0
+        if 0 < num < 1:
+            while round(num, decimals) == 0:
+                decimals += 1
+
+        return "0." + "0" * decimals
 
     def _write_total(self, worksheet: Worksheet, cell: Cell):
         """
