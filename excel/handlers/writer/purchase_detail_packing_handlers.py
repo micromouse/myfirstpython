@@ -53,7 +53,7 @@ class WritePurchasedetailPackingHandlers(WritePurchasedetailHandlers, WriteHandl
         # 写Total值
         self._write_total(self._worksheet.cell(cell.row + 2 + len(pl10_read_parse_result["purchase_details"]), 3))
 
-        return CellparseResult(next_row_index=cell.row + 2 + len(pl10_read_parse_result["purchase_details"]) + 1)
+        return CellparseResult(next_row_index=self._worksheet.max_row + 1)
 
     def _insert_purchase_details(self, cell: Cell, pl10_read_parse_result: PL10ReadParseResult):
         """

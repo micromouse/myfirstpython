@@ -33,4 +33,6 @@ class TotalHandlers(WriteHandlerBase):
             self._workbook[sheetname].row_dimensions[cell.row + 2].height = 30
             self._workbook[sheetname].cell(cell.row + 2, cell.column).value = self._datasource.get_data_source(CI00ReadParseResult)["total_amount_english"]
 
-        return CellparseResult()
+        # 完成[货代 Invoice] worksheet写入，隐藏[With material code] worksheet
+        self._workbook["With material code"].sheet_state = "hidden"
+        return CellparseResult(next_row_index=self._worksheet.max_row + 1)

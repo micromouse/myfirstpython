@@ -31,19 +31,24 @@ class EgytpoppoSalesclearanceGenerator:
     def generate(cls):
         """
         生成[销售清关CI&PL]文件
-        :param func: 回到函数
         """
         # 循环处理所有采购CI&PL文件以生成响应的销售清关CI&PL文件
-        for pending_file in ServiceLocator.getservice(FileScanService).scan():
-            cls._handle_progress(f"正在处理[{pending_file.pending_file_path}]文件")
+        pending_files = ServiceLocator.getservice(FileScanService).scan()
+        for index, pending_file in enumerate(pending_files, start=1):
+            try:
+                cls._handle_progress(f"正在处理[{index}/{len(pending_files)}][{pending_file.pending_file_path}]文件")
+                if index == 8:
+                    pass
+                # 读 [采购CI&PL] Excel文件
+                ci00_writer_datasource = cls._read_pending_file(pending_file, "CI00")
+                cpl10_writer_datasource = cls._read_pending_file(pending_file, "PL10")
 
-            # 读 [采购CI&PL] Excel文件
-            ci00_writer_datasource = cls._read_pending_file(pending_file, "CI00")
-            cpl10_writer_datasource = cls._read_pending_file(pending_file, "PL10")
+                # 写[货代 Invoice, 货代 Packing] Sheet
+                cls._write_sales_clearance_file(pending_file, ci00_writer_datasource, cpl10_writer_datasource)
+            except Exception as e:
+                cls._handle_progress(f"处理采购CI&PL文件[{pending_file.pending_file_path}]时发生异常\r\n{e}")
 
-            # 写[货代 Invoice, 货代 Packing] Sheet
-            cls._write_sales_clearance_file(pending_file, ci00_writer_datasource, cpl10_writer_datasource)
-            break
+        cls._handle_progress(f"已完成全部[{len(pending_files)}]个采购CI&PL文件处理")
 
     @classmethod
     def initial(cls, root_folder: str) -> type["EgytpoppoSalesclearanceGenerator"]:

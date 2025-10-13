@@ -69,7 +69,7 @@ class ReadPurchaseDetailHandlers(ReadhandleBase):
             "shipping_marks": Utils.get_cell_value(self._worksheet, row[0]),
             "material_code": Utils.get_cell_value(self._worksheet, row[2]),
             "description": Utils.get_cell_value(self._worksheet, row[6]),
-            "quantity": int(Utils.get_cell_value(self._worksheet, row[9], "0").replace(",", "")),
+            "quantity": int(float(Utils.get_cell_value(self._worksheet, row[9], "0").replace(",", ""))),
             "unit_price": Decimal(Utils.get_cell_value(self._worksheet, row[10], "0").replace(",", "")),
             "amount_usd": Decimal(Utils.get_cell_value(self._worksheet, row[11], "0").replace(",", "")),
             "origin_country": Utils.get_cell_value(self._worksheet, row[12]),
@@ -85,7 +85,7 @@ class ReadPurchaseDetailHandlers(ReadhandleBase):
             "shipping_marks": Utils.get_cell_value(self._worksheet, row[0]),
             "material_code": Utils.get_cell_value(self._worksheet, row[13]),
             "description": Utils.get_cell_value(self._worksheet, row[4]),
-            "total_quantity": int(Utils.get_cell_value(self._worksheet, row[8], "0").replace(",", "")),
+            "total_quantity": int(float(Utils.get_cell_value(self._worksheet, row[8], "0").replace(",", ""))),
             "total_packages": int(row[11].value) if row[11].value else None
         }
         return purchase_detail

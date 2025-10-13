@@ -18,7 +18,7 @@ class ReadTotalHandlers(ReadhandleBase):
         """
         处理合计值
         """
-        total_quantity = int(str(self._worksheet.cell(cell.row, cell.column + 1).value).replace(",", ""))
+        total_quantity = int(float(str(self._worksheet.cell(cell.row, cell.column + 1).value).replace(",", "")))
         total_amount = Decimal(str(self._worksheet.cell(cell.row, cell.column + 3).value).replace(",", ""))
         return CellparseResult({
             "total_quantity": total_quantity,
@@ -33,8 +33,8 @@ class ReadTotalHandlers(ReadhandleBase):
         """
         total_gross_weight = Decimal(str(self._worksheet.cell(cell.row, cell.column + 6).value).replace(",", ""))
         total_net_weight = Decimal(str(self._worksheet.cell(cell.row + 1, cell.column + 6).value).replace(",", ""))
-        total_packages = int(str(self._worksheet.cell(cell.row + 2, cell.column + 6).value).replace(",", ""))
-        total_quantity = int(str(self._worksheet.cell(cell.row + 3, cell.column + 6).value).replace(",", ""))
+        total_packages = int(float(str(self._worksheet.cell(cell.row + 2, cell.column + 6).value).replace(",", "")))
+        total_quantity = int(float(str(self._worksheet.cell(cell.row + 3, cell.column + 6).value).replace(",", "")))
         total_measurement = Decimal(str(self._worksheet.cell(cell.row + 4, cell.column + 6).value).replace(",", ""))
         return CellparseResult({
             "total_gross_weight": total_gross_weight,
@@ -42,4 +42,4 @@ class ReadTotalHandlers(ReadhandleBase):
             "total_packages": total_packages,
             "total_quantity": total_quantity,
             "total_measurement": total_measurement
-        }, next_row_index=cell.row + 5)
+        }, next_row_index=self._worksheet.max_row + 1)
