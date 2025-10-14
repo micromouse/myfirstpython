@@ -19,6 +19,7 @@ from excel.handlers.services.file_scan_service import FileScanService
 from excel.handlers.services.hscode_service import HScodeService
 from excel.handlers.services.registered_invoice_number_service import RegisteredInvoicNumberService
 from excel.handlers.services.sales_price_table_service import SalespriceTableService
+from excel.handlers.writer.invoice_number_handlers import WriteInvoicenumberHandlers
 
 class EgytpoppoSalesclearanceGenerator:
     """
@@ -37,16 +38,25 @@ class EgytpoppoSalesclearanceGenerator:
         for index, pending_file in enumerate(pending_files, start=1):
             try:
                 cls._handle_progress(f"正在处理[{index}/{len(pending_files)}][{pending_file.pending_file_path}]文件")
-                if index == 8:
-                    pass
+
                 # 读 [采购CI&PL] Excel文件
                 ci00_writer_datasource = cls._read_pending_file(pending_file, "CI00")
                 cpl10_writer_datasource = cls._read_pending_file(pending_file, "PL10")
 
                 # 写[货代 Invoice, 货代 Packing] Sheet
                 cls._write_sales_clearance_file(pending_file, ci00_writer_datasource, cpl10_writer_datasource)
+
+                # 保存发票号
+                ServiceLocator \
+                    .getservice(RegisteredInvoicNumberService) \
+                    .save_new_invoice_number(
+                    pending_file_model=pending_file,
+                    original_invoice_number=ci00_writer_datasource.get_data_source(CI00ReadParseResult)["invoice_number"],
+                    new_invoice_number=pending_file.sales_clearance_invoice_number
+                )
             except Exception as e:
                 cls._handle_progress(f"处理采购CI&PL文件[{pending_file.pending_file_path}]时发生异常\r\n{e}")
+                raise e
 
         cls._handle_progress(f"已完成全部[{len(pending_files)}]个采购CI&PL文件处理")
 
@@ -99,8 +109,11 @@ class EgytpoppoSalesclearanceGenerator:
         with ServiceLocator \
                 .get_iteration_scope() \
                 .enter((Workbook, workbook), (PendingFileModel, pending_file)):
-            # 写 [货代 Invoice,货代 Packing] Sheet
+            # 写 [货代 Invoice] Sheet
             invoice_write_parse_result = cls._write_sales_clearance_file_sheet(workbook, ci00_writer_datasource, "货代 Invoice")
+            pending_file.sales_clearance_invoice_number = invoice_write_parse_result["invoice_number"]
+
+            # 写 [货代 Packing] Sheet
             cls._write_sales_clearance_file_sheet(workbook, pl10_writer_datasource, "货代 Packing")
 
             # 保存

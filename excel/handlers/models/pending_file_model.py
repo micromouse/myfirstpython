@@ -30,6 +30,10 @@ class PendingFileModel:
     """
     待处理文件名称
     """
+    sales_clearance_invoice_number: str = ""
+    """
+    销售清关发票号
+    """
 
     def get_sales_cipl_template_file_path(self) -> Path:
         """

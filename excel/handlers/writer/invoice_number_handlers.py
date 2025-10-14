@@ -12,11 +12,6 @@ from excel.handlers.writer.write_handler_base import WriteHandlerBase
 
 @Dispatcher.register_handlers
 class WriteInvoicenumberHandlers(WriteHandlerBase):
-    """
-    发票号处理器
-    """
-    _invoice_number: str = ""
-
     @inject
     def __init__(
             self,
@@ -40,18 +35,18 @@ class WriteInvoicenumberHandlers(WriteHandlerBase):
         """
         处理发票号(货代Invoice和With material code Sheet用)
         """
-        self._worksheet.cell(cell.row, cell.column + 2).value = self._save_and_get_invoice_number()
-        self._workbook["With material code"].cell(cell.row, cell.column + 2).value = self._save_and_get_invoice_number()
-        write_parse_result = dict(WriteParseResult(invoice_number=self._invoice_number))
+        self._worksheet.cell(cell.row, cell.column + 2).value = self._get_invoice_number()
+        self._workbook["With material code"].cell(cell.row, cell.column + 2).value = self._get_invoice_number()
+        write_parse_result = dict(WriteParseResult(invoice_number=self._get_invoice_number()))
         return CellparseResult(write_parse_result, next_row_index=cell.row)
 
-    def _save_and_get_invoice_number(self) -> str:
+    def _get_invoice_number(self) -> str:
         """
-        保存并获得发票号
+        获得发票号
         :return: 发票号
         """
         # 未设置发票号,先设置发票号
-        if self._invoice_number == "":
+        if not self._pending_file_model.sales_clearance_invoice_number:
             # 从CI00 Sheet获得发票号
             original_invoice_number = self._datasource.get_data_source(CI00ReadParseResult)["invoice_number"]
             current_invoice_nubmers = sorted(original_invoice_number.split(","), reverse=True)
@@ -59,9 +54,6 @@ class WriteInvoicenumberHandlers(WriteHandlerBase):
                 raise ValueError("CI00 Sheet未包含发票号信息")
 
             # 获得新的发票号、保存新发票号到已注册发票号文件
-            WriteInvoicenumberHandlers._invoice_number = self._registered_invoice_number_service.get_new_invoice_number(current_invoice_nubmers)
-            self \
-                ._registered_invoice_number_service \
-                .save_new_invoice_number(self._pending_file_model, original_invoice_number, self._invoice_number)
+            self._pending_file_model.sales_clearance_invoice_number = self._registered_invoice_number_service.get_new_invoice_number(current_invoice_nubmers)
 
-        return self._invoice_number
+        return self._pending_file_model.sales_clearance_invoice_number

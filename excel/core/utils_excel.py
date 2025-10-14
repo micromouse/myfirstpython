@@ -89,12 +89,13 @@ class UtilsExcel:
         return value.strip()
 
     @staticmethod
-    def get_excel_column_values(file: str, sheet_index: int, column_index: int) -> List[str]:
+    def get_excel_column_values(file: str, sheet_index: int, column_index: int, start_row_index: int = 1) -> List[str]:
         """
         获得指定excel sheet column值集合
         :param file: excel文件
         :param sheet_index: sheet索引
         :param column_index: 列索引
+        :param start_row_index: 起始行索引
         :return: 列值集合
         """
         workbook: Workbook
@@ -102,6 +103,7 @@ class UtilsExcel:
             cells = workbook.worksheets[sheet_index].iter_cols(
                 min_col=column_index,
                 max_col=column_index,
+                min_row=start_row_index,
                 values_only=True
             )
             values = list(next(cells))

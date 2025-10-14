@@ -24,7 +24,13 @@ class RegisteredInvoicNumberService:
         self._appsettings = appsettings
         if not self._registered_invoice_numbers:
             RegisteredInvoicNumberService._registered_invoice_numbers = \
-                Utils.get_excel_column_values(self._appsettings.registered_invoice_number_file, 0, 3)
+                Utils.get_excel_column_values(self._appsettings.registered_invoice_number_file, 0, 3, 2)
+
+        # 插入一个空行分隔
+        if len(self._registered_invoice_numbers) > 0:
+            FluentExcelWriter() \
+                .set_file(self._appsettings.registered_invoice_number_file) \
+                .write(lambda sheet: sheet.cell(sheet.max_row + 1, 1, ""))
 
     def save_new_invoice_number(
             self,
@@ -71,25 +77,32 @@ class RegisteredInvoicNumberService:
                 n == new_invoice_number or
                 n.startswith(f"{new_invoice_number}-")
             })
-            new_invoice_number = f"{new_invoice_number}-{self._get_max_suffix_number(used_invoice_numbers) + 1}"
+            new_invoice_number = f"{new_invoice_number}-{self._get_max_suffix_number(new_invoice_number, used_invoice_numbers) + 1}"
 
         return new_invoice_number
 
     @staticmethod
-    def _get_max_suffix_number(used_invoice_numbers: List[str]) -> int:
+    def _get_max_suffix_number(base_invoice_number: str, used_invoice_numbers: List[str]) -> int:
         """
         从已使用发票号集合中获得最大后缀号
+        :param base_invoice_number: 基础发票号
         :param used_invoice_numbers: 已使用发票号
         :return: 已使用发票号最大后缀
         """
-        suffix_numbers: List[int] = []
-        for n in used_invoice_numbers:
-            """
-            re.match(pattern, string) → 从字符串开头匹配，只匹配开头
-            re.search(pattern, string) → 整个字符串搜索，匹配任意位置
-            re.fullmatch(pattern, string) → 整个字符串完全匹配            
-            """
-            match = re.search(r"-(\d+)$", n)
-            suffix_numbers.append(int(match.group(1)) if match else 0)
+        # re.escape(base_invoice_number)会把[base_invoice_number]里的特殊字符自动转义。如:
+        # re.escape("a-b-c.006")结果是"a\\-b\\-c\\.006"
+        pattern = re.compile(rf'^{re.escape(base_invoice_number)}-(\d+)$')
 
-        return max(suffix_numbers)
+        """
+        re.match(pattern, string) → 从字符串开头匹配，只匹配开头
+        re.search(pattern, string) → 整个字符串搜索，匹配任意位置
+        re.fullmatch(pattern, string) → 整个字符串完全匹配
+        这行代码用了 Python 3.8+ 的“海象运算符”（walrus operator :=），可以顺便在条件判断里给变量赋值，然后在生成器里直接使用。
+        suffix_numbers = []
+        for n in used_invoice_numbers:
+            m = pattern.fullmatch(n)  # 匹配 base-数字
+            if m:                     # 如果匹配成功
+                suffix_numbers.append(int(m.group(1)))  # 提取尾号数字                
+        """
+        suffix_numbers: List[int] = [int(m.group(1)) for n in used_invoice_numbers if (m := pattern.fullmatch(n))]
+        return max(suffix_numbers, default=0)
