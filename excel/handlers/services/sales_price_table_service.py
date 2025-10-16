@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Dict
 
 from injector import inject
+
 from excel.core.utils import Utils
 from excel.handlers.models.pending_file_model import PendingFileModel
 
@@ -29,7 +30,7 @@ class SalespriceTableService:
         :return: 报关单价
         """
         if material_code not in self._sales_prices[self._pending_file_model.brand_subcategory_path]:
-            raise KeyError(f"未能获得物料[{self._pending_file_model.brand_category / self._pending_file_model.brand_subcategory}/{material_code}]报关单价")
+            raise KeyError(f"未能获得物料[{self._pending_file_model.brand_category}/{self._pending_file_model.brand_subcategory}/{material_code}]报关单价")
 
         return self._sales_prices[self._pending_file_model.brand_subcategory_path][material_code]
 
@@ -41,9 +42,9 @@ class SalespriceTableService:
         with Utils.open_workbook(self._pending_file_model.get_sales_price_table_file_path(), data_only=True) as workbook:
             sheet = workbook.worksheets[0]
             for row in sheet.iter_rows(min_row=2):
-                if row[1].value:
+                if row[1].value and row[3].value and row[4].value:
                     material_code = str(row[1].value).strip()
                     if material_code not in self._sales_prices[self._pending_file_model.brand_subcategory_path]:
                         # 未能获得计算列的值
-                        price = Decimal(str(row[5].value).strip())
+                        price = Decimal(str(row[3].value).strip()) * (Decimal(1) + Decimal(str(row[4].value).strip()))
                         self._sales_prices[self._pending_file_model.brand_subcategory_path][material_code] = price

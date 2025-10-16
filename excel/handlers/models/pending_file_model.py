@@ -20,7 +20,7 @@ class PendingFileModel:
     """
     brand_subcategory_path: Path
     """
-    品牌全路径子类目录
+    品牌子类全路径目录
     """
     sales_clearance_path: Path
     """

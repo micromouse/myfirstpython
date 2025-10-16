@@ -1,7 +1,9 @@
 from decimal import Decimal
 from typing import List
 
+from injector import inject
 from openpyxl.cell.cell import Cell
+from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 from pydantic.v1.errors import cls_kwargs
 
@@ -10,12 +12,28 @@ from excel.core.models.parse_result import CellparseResult
 from excel.core.models.purchase_detail import PurchaseDetail, CI00PurchaseDetail, PL10PurchaseDetail
 from excel.core.utils import Utils
 from excel.handlers.reader.read_handler_base import ReadhandleBase
+from excel.handlers.services.sales_price_table_service import SalespriceTableService
 
 @Dispatcher.register_handlers
 class ReadPurchaseDetailHandlers(ReadhandleBase):
     """
-    通用处理器
+    采购明细处理器
     """
+
+    @inject
+    def __init__(
+            self,
+            workbook: Workbook,
+            worksheet: Worksheet,
+            sales_price_table_service: SalespriceTableService):
+        """
+        初始化采购明细处理器
+        :param workbook: Workbook
+        :param worksheet: Worksheet
+        :param sales_price_table_service: 销售价目表服务
+        """
+        super().__init__(workbook, worksheet)
+        self._sales_price_table_service = sales_price_table_service
 
     @Dispatcher.keyword("READ_SHIPPING")
     def handle_purchase_details(self, cell: Cell) -> CellparseResult:
@@ -65,13 +83,16 @@ class ReadPurchaseDetailHandlers(ReadhandleBase):
         """
         获得CI00采购明细信息
         """
+        material_code = Utils.get_cell_value(self._worksheet, row[2])
+        quantity = int(float(Utils.get_cell_value(self._worksheet, row[9], "0").replace(",", "")))
+        unit_price = self._sales_price_table_service.get_sales_price(material_code)
         purchase_detail: CI00PurchaseDetail = {
             "shipping_marks": Utils.get_cell_value(self._worksheet, row[0]),
-            "material_code": Utils.get_cell_value(self._worksheet, row[2]),
+            "material_code": material_code,
             "description": Utils.get_cell_value(self._worksheet, row[6]),
-            "quantity": int(float(Utils.get_cell_value(self._worksheet, row[9], "0").replace(",", ""))),
-            "unit_price": Decimal(Utils.get_cell_value(self._worksheet, row[10], "0").replace(",", "")),
-            "amount_usd": Decimal(Utils.get_cell_value(self._worksheet, row[11], "0").replace(",", "")),
+            "quantity": quantity,
+            "unit_price": unit_price,
+            "amount_usd": quantity * unit_price,
             "origin_country": Utils.get_cell_value(self._worksheet, row[12]),
             "remark": Utils.get_cell_value(self._worksheet, row[13])
         }

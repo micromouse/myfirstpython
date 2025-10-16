@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from typing import List
 
 from injector import inject
@@ -75,7 +75,7 @@ class WritePurchasedetailInvoiceHandlers(WritePurchasedetailHandlers):
             worksheet.cell(cell.row + 2 + index, 5).value = purchase_detail["quantity"]
             worksheet.cell(cell.row + 2 + index, 6).value = purchase_detail["unit_price"]
             worksheet.cell(cell.row + 2 + index, 6).number_format = self._get_cell_formatter(purchase_detail["unit_price"])
-            worksheet.cell(cell.row + 2 + index, 7).value = round(purchase_detail["amount_usd"], 2)
+            worksheet.cell(cell.row + 2 + index, 7).value = purchase_detail["amount_usd"].quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
             worksheet.cell(cell.row + 2 + index, 7).number_format = "0.00"
 
             # Model列、第八列[brand/remark/country of origin]
