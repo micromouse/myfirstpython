@@ -1,5 +1,6 @@
 # 异步http
 import asyncio
+
 import aiohttp
 
 async def fetch(url: str):

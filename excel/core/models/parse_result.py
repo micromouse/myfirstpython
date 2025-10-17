@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, Any, TypedDict, List, TypeVar
+from typing import Dict, Any, TypedDict, List
 
 from .purchase_detail import CI00PurchaseDetail, PL10PurchaseDetail
 

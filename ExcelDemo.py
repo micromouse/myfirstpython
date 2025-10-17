@@ -1,9 +1,9 @@
 """
 使用xlwings控制excel演示
 """
-import os
-import xlwings
 from pathlib import Path
+
+import xlwings
 from openpyxl import load_workbook
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet

@@ -1,5 +1,4 @@
 from decimal import Decimal
-from abc import ABC
 from typing import TypedDict
 
 class PurchaseDetail(TypedDict):

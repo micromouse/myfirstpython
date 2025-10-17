@@ -1,5 +1,4 @@
 from openpyxl.cell.cell import Cell
-from openpyxl.worksheet.worksheet import Worksheet
 
 from excel.core.dispatcher import Dispatcher
 from excel.core.models.parse_result import CellparseResult

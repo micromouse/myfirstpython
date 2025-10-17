@@ -4,7 +4,6 @@ from injector import inject
 
 from excel.appsettings import AppSettings
 from excel.core.utils import Utils
-from excel.handlers.models.pending_file_model import PendingFileModel
 
 class AuthenticationedPhonemodelService:
     """

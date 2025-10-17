@@ -1,5 +1,5 @@
-import os
 from typing import Any
+
 import requests
 
 from CookiesGetter import CookiesGetter

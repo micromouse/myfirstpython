@@ -1,7 +1,6 @@
 from typing import Dict
 
 from injector import inject
-from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from excel.appsettings import AppSettings

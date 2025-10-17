@@ -1,5 +1,4 @@
 # FastApi api结果中间件
-import json
 
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint

@@ -1,6 +1,5 @@
-import warnings
 import functools
-
+import warnings
 from typing import Any, Callable
 
 def deprecated(message: str) -> Callable[..., Any]:

@@ -1,8 +1,8 @@
-from fastapi import APIRouter
+from typing import Optional
+
+from pydantic import BaseModel, Field
 
 from FastApi.FastApiBase import FastApiBase
-from pydantic import BaseModel, Field
-from typing import Optional
 
 class UserRequest(BaseModel):
     """

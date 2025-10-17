@@ -11,9 +11,7 @@ def sum_nums(first: int, *others: int):
         sum += num
     return sum
 
-
 total = 0
-
 
 def calculate_total(num1: int, num2: int):
     """
@@ -24,7 +22,6 @@ def calculate_total(num1: int, num2: int):
     # 这里创建了一个新的局部变量 total，不影响外部的 total
     total = num1 + num2
     print(f"calculate_total方法内的total={total}")
-
 
 # 多个数字求和
 print(f"1={sum_nums(1)}")

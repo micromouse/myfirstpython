@@ -8,7 +8,6 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from excel.core.dispatcher import Dispatcher
 from excel.core.models.parse_result import PL10ReadParseResult, CellparseResult
-from excel.core.models.purchase_detail import PL10PurchaseDetail
 from excel.handlers.models.pending_file_model import PendingFileModel
 from excel.handlers.models.writer_datasource import WriterDataSource
 from excel.handlers.services.authenticationed_phone_model_service import AuthenticationedPhonemodelService
